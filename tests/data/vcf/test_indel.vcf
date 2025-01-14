@@ -1,0 +1,131 @@
+##fileformat=VCFv4.1
+##FILTER=<ID=PASS,Description="All filters passed">
+##reference=/ifs/work/leukgen/ref/homo_sapiens/GRCh37d5/genome/gr37.fasta
+##contig=<ID=1,assembly=GRCH37D5,length=249250621,species=HUMAN>
+##contig=<ID=2,assembly=GRCH37D5,length=243199373,species=HUMAN>
+##contig=<ID=3,assembly=GRCH37D5,length=198022430,species=HUMAN>
+##contig=<ID=4,assembly=GRCH37D5,length=191154276,species=HUMAN>
+##contig=<ID=5,assembly=GRCH37D5,length=180915260,species=HUMAN>
+##contig=<ID=6,assembly=GRCH37D5,length=171115067,species=HUMAN>
+##contig=<ID=7,assembly=GRCH37D5,length=159138663,species=HUMAN>
+##contig=<ID=8,assembly=GRCH37D5,length=146364022,species=HUMAN>
+##contig=<ID=9,assembly=GRCH37D5,length=141213431,species=HUMAN>
+##contig=<ID=10,assembly=GRCH37D5,length=135534747,species=HUMAN>
+##contig=<ID=11,assembly=GRCH37D5,length=135006516,species=HUMAN>
+##contig=<ID=12,assembly=GRCH37D5,length=133851895,species=HUMAN>
+##contig=<ID=13,assembly=GRCH37D5,length=115169878,species=HUMAN>
+##contig=<ID=14,assembly=GRCH37D5,length=107349540,species=HUMAN>
+##contig=<ID=15,assembly=GRCH37D5,length=102531392,species=HUMAN>
+##contig=<ID=16,assembly=GRCH37D5,length=90354753,species=HUMAN>
+##contig=<ID=17,assembly=GRCH37D5,length=81195210,species=HUMAN>
+##contig=<ID=18,assembly=GRCH37D5,length=78077248,species=HUMAN>
+##contig=<ID=19,assembly=GRCH37D5,length=59128983,species=HUMAN>
+##contig=<ID=20,assembly=GRCH37D5,length=63025520,species=HUMAN>
+##contig=<ID=21,assembly=GRCH37D5,length=48129895,species=HUMAN>
+##contig=<ID=22,assembly=GRCH37D5,length=51304566,species=HUMAN>
+##contig=<ID=X,assembly=GRCH37D5,length=155270560,species=HUMAN>
+##contig=<ID=Y,assembly=GRCH37D5,length=59373566,species=HUMAN>
+##contig=<ID=MT,assembly=GRCH37D5,length=16569,species=HUMAN>
+##contig=<ID=GL000207.1,assembly=GRCH37D5,length=4262,species=HUMAN>
+##contig=<ID=GL000226.1,assembly=GRCH37D5,length=15008,species=HUMAN>
+##contig=<ID=GL000229.1,assembly=GRCH37D5,length=19913,species=HUMAN>
+##contig=<ID=GL000231.1,assembly=GRCH37D5,length=27386,species=HUMAN>
+##contig=<ID=GL000210.1,assembly=GRCH37D5,length=27682,species=HUMAN>
+##contig=<ID=GL000239.1,assembly=GRCH37D5,length=33824,species=HUMAN>
+##contig=<ID=GL000235.1,assembly=GRCH37D5,length=34474,species=HUMAN>
+##contig=<ID=GL000201.1,assembly=GRCH37D5,length=36148,species=HUMAN>
+##contig=<ID=GL000247.1,assembly=GRCH37D5,length=36422,species=HUMAN>
+##contig=<ID=GL000245.1,assembly=GRCH37D5,length=36651,species=HUMAN>
+##contig=<ID=GL000197.1,assembly=GRCH37D5,length=37175,species=HUMAN>
+##contig=<ID=GL000203.1,assembly=GRCH37D5,length=37498,species=HUMAN>
+##contig=<ID=GL000246.1,assembly=GRCH37D5,length=38154,species=HUMAN>
+##contig=<ID=GL000249.1,assembly=GRCH37D5,length=38502,species=HUMAN>
+##contig=<ID=GL000196.1,assembly=GRCH37D5,length=38914,species=HUMAN>
+##contig=<ID=GL000248.1,assembly=GRCH37D5,length=39786,species=HUMAN>
+##contig=<ID=GL000244.1,assembly=GRCH37D5,length=39929,species=HUMAN>
+##contig=<ID=GL000238.1,assembly=GRCH37D5,length=39939,species=HUMAN>
+##contig=<ID=GL000202.1,assembly=GRCH37D5,length=40103,species=HUMAN>
+##contig=<ID=GL000234.1,assembly=GRCH37D5,length=40531,species=HUMAN>
+##contig=<ID=GL000232.1,assembly=GRCH37D5,length=40652,species=HUMAN>
+##contig=<ID=GL000206.1,assembly=GRCH37D5,length=41001,species=HUMAN>
+##contig=<ID=GL000240.1,assembly=GRCH37D5,length=41933,species=HUMAN>
+##contig=<ID=GL000236.1,assembly=GRCH37D5,length=41934,species=HUMAN>
+##contig=<ID=GL000241.1,assembly=GRCH37D5,length=42152,species=HUMAN>
+##contig=<ID=GL000243.1,assembly=GRCH37D5,length=43341,species=HUMAN>
+##contig=<ID=GL000242.1,assembly=GRCH37D5,length=43523,species=HUMAN>
+##contig=<ID=GL000230.1,assembly=GRCH37D5,length=43691,species=HUMAN>
+##contig=<ID=GL000237.1,assembly=GRCH37D5,length=45867,species=HUMAN>
+##contig=<ID=GL000233.1,assembly=GRCH37D5,length=45941,species=HUMAN>
+##contig=<ID=GL000204.1,assembly=GRCH37D5,length=81310,species=HUMAN>
+##contig=<ID=GL000198.1,assembly=GRCH37D5,length=90085,species=HUMAN>
+##contig=<ID=GL000208.1,assembly=GRCH37D5,length=92689,species=HUMAN>
+##contig=<ID=GL000191.1,assembly=GRCH37D5,length=106433,species=HUMAN>
+##contig=<ID=GL000227.1,assembly=GRCH37D5,length=128374,species=HUMAN>
+##contig=<ID=GL000228.1,assembly=GRCH37D5,length=129120,species=HUMAN>
+##contig=<ID=GL000214.1,assembly=GRCH37D5,length=137718,species=HUMAN>
+##contig=<ID=GL000221.1,assembly=GRCH37D5,length=155397,species=HUMAN>
+##contig=<ID=GL000209.1,assembly=GRCH37D5,length=159169,species=HUMAN>
+##contig=<ID=GL000218.1,assembly=GRCH37D5,length=161147,species=HUMAN>
+##contig=<ID=GL000220.1,assembly=GRCH37D5,length=161802,species=HUMAN>
+##contig=<ID=GL000213.1,assembly=GRCH37D5,length=164239,species=HUMAN>
+##contig=<ID=GL000211.1,assembly=GRCH37D5,length=166566,species=HUMAN>
+##contig=<ID=GL000199.1,assembly=GRCH37D5,length=169874,species=HUMAN>
+##contig=<ID=GL000217.1,assembly=GRCH37D5,length=172149,species=HUMAN>
+##contig=<ID=GL000216.1,assembly=GRCH37D5,length=172294,species=HUMAN>
+##contig=<ID=GL000215.1,assembly=GRCH37D5,length=172545,species=HUMAN>
+##contig=<ID=GL000205.1,assembly=GRCH37D5,length=174588,species=HUMAN>
+##contig=<ID=GL000219.1,assembly=GRCH37D5,length=179198,species=HUMAN>
+##contig=<ID=GL000224.1,assembly=GRCH37D5,length=179693,species=HUMAN>
+##contig=<ID=GL000223.1,assembly=GRCH37D5,length=180455,species=HUMAN>
+##contig=<ID=GL000195.1,assembly=GRCH37D5,length=182896,species=HUMAN>
+##contig=<ID=GL000212.1,assembly=GRCH37D5,length=186858,species=HUMAN>
+##contig=<ID=GL000222.1,assembly=GRCH37D5,length=186861,species=HUMAN>
+##contig=<ID=GL000200.1,assembly=GRCH37D5,length=187035,species=HUMAN>
+##contig=<ID=GL000193.1,assembly=GRCH37D5,length=189789,species=HUMAN>
+##contig=<ID=GL000194.1,assembly=GRCH37D5,length=191469,species=HUMAN>
+##contig=<ID=GL000225.1,assembly=GRCH37D5,length=211173,species=HUMAN>
+##contig=<ID=GL000192.1,assembly=GRCH37D5,length=547496,species=HUMAN>
+##contig=<ID=NC_007605,assembly=GRCH37D5,length=171823,species=HUMAN>
+##contig=<ID=hs37d5,assembly=GRCH37D5,length=35477943,species=HUMAN>
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">
+##INFO=<ID=MP,Number=1,Type=Float,Description="Sum of CaVEMan somatic genotype probabilities">
+##INFO=<ID=GP,Number=1,Type=Float,Description="Sum of CaVEMan germline genotype probabilities">
+##INFO=<ID=TG,Number=1,Type=String,Description="Most probable genotype as called by CaVEMan">
+##INFO=<ID=TP,Number=1,Type=Float,Description="Probability of most probable genotype as called by CaVEMan">
+##INFO=<ID=SG,Number=1,Type=String,Description="2nd most probable genotype as called by CaVEMan">
+##INFO=<ID=SP,Number=1,Type=Float,Description="Probability of 2nd most probable genotype as called by CaVEMan">
+##INFO=<ID=DS,Number=.,Type=String,Description="DBSnp ID of known SNP">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=FAZ,Number=1,Type=Integer,Description="Reads presenting a A for this position, forward strand">
+##FORMAT=<ID=FCZ,Number=1,Type=Integer,Description="Reads presenting a C for this position, forward strand">
+##FORMAT=<ID=FGZ,Number=1,Type=Integer,Description="Reads presenting a G for this position, forward strand">
+##FORMAT=<ID=FTZ,Number=1,Type=Integer,Description="Reads presenting a T for this position, forward strand">
+##FORMAT=<ID=RAZ,Number=1,Type=Integer,Description="Reads presenting a A for this position, reverse strand">
+##FORMAT=<ID=RCZ,Number=1,Type=Integer,Description="Reads presenting a C for this position, reverse strand">
+##FORMAT=<ID=RGZ,Number=1,Type=Integer,Description="Reads presenting a G for this position, reverse strand">
+##FORMAT=<ID=RTZ,Number=1,Type=Integer,Description="Reads presenting a T for this position, reverse strand">
+##FORMAT=<ID=PM,Number=1,Type=Float,Description="Proportion of mut allele">
+##FILTER=<ID=DTH,Description="Less than 1/3 mutant alleles were >= 25 base quality">
+##FILTER=<ID=RP,Description="Coverage was less than 8 and no mutant alleles were found in the first 2/3 of a read (shifted 0.08 from the start and extended 0.08 more than 2/3 of the read length)">
+##FILTER=<ID=MN,Description="More than 0.05 of mutant alleles that were >= 15 base quality found in the matched normal">
+##FILTER=<ID=PT,Description="Mutant alleles all on one direction of read (1rd allowed on opposite strand) and in second half of the read. Second half of read contains the motif GGC[AT]G in sequenced orientation and the mean base quality of all bases after the motif was less than 20">
+##FILTER=<ID=MQ,Description="Mean mapping quality of the mutant allele reads was < 21">
+##FILTER=<ID=SR,Description="Position falls within a simple repeat using the supplied bed file">
+##FILTER=<ID=CR,Description="Position falls within a centromeric repeat using the supplied bed file">
+##INFO=<ID=SNP,Number=0,Type=Flag,Description="Position matches a dbSNP entry using the supplied bed file">
+##FILTER=<ID=PH,Description="Mutant reads were on one strand (permitted proportion on other strand: 0.04), and mean mutant base quality was less than 21">
+##FILTER=<ID=HSD,Description="Position falls within a high sequencing depth region using the supplied bed file">
+##FILTER=<ID=GI,Description="Position falls within a germline indel using the supplied bed file">
+##FILTER=<ID=VUM,Description="Position has >= 3 mutant allele present in at least 1 percent unmatched normal samples in the unmatched VCF.">
+##FILTER=<ID=SE,Description="Coverage is >= 10 on each strand but mutant allele is only present on one strand">
+##FILTER=<ID=MNP,Description="Tumour sample mutant allele proportion - normal sample mutant allele proportion < 0.2">
+##INFO=<ID=ASRD,Number=1,Type=Float,Description="A soft flag median (read length adjusted) alignment score of reads showing the variant allele">
+##INFO=<ID=CLPM,Number=1,Type=Float,Description="A soft flag median number of soft clipped bases in variant supporting reads">
+##INFO=<ID=ASMD,Number=1,Type=Float,Description="A soft flag median alignement score of reads showing the variant allele">
+##INFO=<ID=END,Number=1,Type=Integer,Description="Stop position of the interval">
+##SAMPLE=<ID=NORMAL,Description="Normal",Accession=.,Platform=.,Protocol=WGS>
+##SAMPLE=<ID=TUMOUR,Description="Tumour",Accession=.,Platform=.,Protocol=WGS>
+##bcftools_viewVersion=1.9+htslib-1.9
+##bcftools_viewCommand=view -r 9:11570-11580 any2vum.vcf.gz; Date=Wed Jun 30 15:36:22 2021
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	NORMAL	TUMOUR
+9	11576	.	GA	G	.	PASS	ASRD=0.97	.	.	.
