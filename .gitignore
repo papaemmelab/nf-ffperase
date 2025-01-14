@@ -1,0 +1,14 @@
+# Nextflow run files
+nextflow
+work
+capsule
+framework
+pipeline_*
+.nextflow*
+.nf-test*
+tmp
+
+# Tests
+tests/outdir/*
+outdir
+plugins
