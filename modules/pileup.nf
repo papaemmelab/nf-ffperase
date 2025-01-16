@@ -1,6 +1,6 @@
 process split_pileup {
     input:
-    path input_vcf
+    path vcf
 
     output:
     path "splits/split_*.vcf", emit: split_vcf_files
@@ -10,7 +10,7 @@ process split_pileup {
     #!/usr/bin/env python
     ANNOT_LIMIT = 1  # Adjust this limit as needed
 
-    vcf = '${input_vcf}'
+    vcf = '${vcf}'
     split_dir = 'splits'
     import os
     os.makedirs(split_dir, exist_ok=True)
@@ -42,7 +42,7 @@ process pileup {
     mkdir -p pileup
     BASENAME_VCF=\$(basename ${split_vcf} .vcf)
     PILEUP_FILE="pileup/pileup_\${BASENAME_VCF}.txt"
-    ${projectDir}/bin/annotate_w_pileup ${input_bam} ${ref_genome} ${split_vcf} \$PILEUP_FILE --mapq 0 --baseq 0 --depth 0
+    annotate_w_pileup ${input_bam} ${ref_genome} ${split_vcf} \$PILEUP_FILE --mapq 0 --baseq 0 --depth 0
     """
 }
 

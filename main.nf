@@ -1,101 +1,260 @@
 // Import modules
-include { split_pileup } from './modules/pileup.nf'
-include { pileup } from './modules/pileup.nf'
-include { merge_pileup } from './modules/pileup.nf'
+include { logSuccess; logWarning; logError; logInfo } from './utils.nf'
+// include {  split_pileup, pileup, merge_pileup } from './modules/pileup.nf'
 
+params.outdir = "${workflow.projectDir}/results"
 
-// Header
-log.info """\
-
-===================================================================
-F F P E R A S E
-===================================================================
-
-Documentation	@ https://github.com/papaemmlab/nf-ffperase
-
-Log issues		@ https://github.com/papaemmlab/nf-ffperase/issues
-
-===================================================================
-Workflow run parameters
-===================================================================
-
- version          : ${params.version}
- inputVcf         : ${params.inputVcf}
- inputBam         : ${params.inputBam}
- reference        : ${params.reference}
- outDir           : ${params.outDir}
- workDir          : ${workflow.workDir}
-
-===================================================================
- """
-
-// Help function
-def helpMessage() {
-log.info"""
-
-Usage:  nextflow run main.nf --input samplesheet.tsv --ref reference.fasta
-
-Required Arguments:
-
-	--input			    Full path and name of sample input file (tsv format).
-
-	--ref			    Full path and name of reference genome (fasta format).
-
-	--outDir		    Full path and name of results directory.
-
-Optional Arguments:
-
-	--version 		    Show version and exit.
-
-""".stripIndent()
+def showVersion() {
+    version = "v0.1.0"
+    
+    log.info """\
+        Repo: https://github.com/papaemmlab/nf-ffperase
+        FFPErase version: ${version}
+    """.stripIndent()
+    exit 0
 }
 
-workflow {
+def showHelp() {
+    logInfo """\
+        Usage: nextflow run papaemmelab/nf-ffperase --step <preprocess|classify> [options]
 
-    if (params.help == true) {
-        helpMessage()
-        exit 1
+        FFPErase is a tool for pre-processing and classifying FFPE artifact mutations.
+        
+        For more info: https://github.com/papaemmlab/nf-ffperase
+
+        Steps:
+            preprocess        Compute metrics from input vcf.
+            classify          Classify variants as real or FFPE artifacts.
+
+        Preprocess Options:
+            --vcf               SNV/indel mutations VCF file [required].
+            --bam               Input FFPE bam file [required].
+            --reference         Reference fasta used to align --ffpe-bam [required].
+            --outdir            Output location for results [default: ./results].
+
+        Classify Options:
+            --model             Path to trained model [required].
+            --bam               Input FFPE bam file [required].
+            --reference         Reference fasta used to align --ffpe-bam [required].
+            --outdir            Output location for results [default: ./results].
+    """.stripIndent()
+    exit 0
+}
+
+def showInfo() {
+    stepInputs = params.step == "preprocess" ? (
+        "vcf              : ${params.vcf}"
+    ): (
+        "model            : ${params.model}"
+    )
+        
+    
+    log.info """\
+        ===================================================================
+        F F P E R A S E
+        ===================================================================
+
+        Documentation   @ https://github.com/papaemmlab/nf-ffperase
+        Log issues      @ https://github.com/papaemmlab/nf-ffperase/issues
+
+        -------------------------------------------------------------------
+        Workflow run parameters
+        -------------------------------------------------------------------
+        step             : ${params.step}
+        version          : ${params.version}
+        workDir          : ${workflow.workDir}
+        -------------------------------------------------------------------
+        ${stepInputs}
+        bam              : ${params.bam}
+        reference        : ${params.reference}
+        outdir           : ${params.outdir}
+        -------------------------------------------------------------------
+        
+        Running ${params.step} workflow...
+    """.stripIndent()
+}
+
+def validateParams() {
+
+    requiredParams = [
+        bam: true,
+        reference: true,
+        outdir: false
+    ]
+    if (params.step == "preprocess") {
+        requiredParams.put("vcf", true)
     } else {
-        // Create channels for the inputs
-        input_vcf = Channel.fromPath(params.inputVcf)
-        input_bam = file(params.inputBam)
-        input_bai = file(params.inputBam + ".bai")
-        ref_genome = file(params.reference)
+        requiredParams.put("model", true)
+    }
 
-        // Split VCF file into multiple files
-        split_vcf_files = split_pileup(input_vcf)
+    def channels = [:]
+    requiredParams.each { key, isRequired ->
+        
+        // Validate param is provided
+        def paramValue = params."${key}"
+        log.info "Checking ${key}: ${paramValue}"
+        
+        if (!paramValue && isRequired) {
+            logError "Error: --${key} is required."
+        }
 
-		// Package each split VCF file into a tuple with the BAM, BAI, and reference genome
-        split_vcf_files
-            .flatten()
-            .map { split_vcf -> tuple(split_vcf, input_bam, input_bai, ref_genome) }
-            .set { pileup_input }
+        // If provided validate path exists
+        if (paramValue) {
+            channels[key] = channel.fromPath(paramValue)
+                .ifEmpty("Error: No valid file found for ${key} at ${paramValue}")
+        } else {
+            channels[key] = null
+        }
+    }
 
-        // pileup_input.view()
-		pileup(pileup_input)
+    return channels
+}
 
-        // Merge the pileup output files
-        merge_pileup(pileup_output.collect())
+def validateSteps() {
+    def validSteps = ['preprocess', 'classify']
+    if (!params.step) {
+        showHelp()
+    } else if (!validSteps.contains(params.step)) {
+        logError """\
+            Error: Invalid step '${params.step}'
+            Available steps: ${validSteps.join(', ')}
+        """.stripIndent()
+        exit 1
     }
 }
 
-workflow.onComplete {
 
-summary = """
-===================================================================
-Workflow execution summary
-===================================================================
 
-Duration		: ${workflow.duration}
-Success			: ${workflow.success}
-workDir			: ${workflow.workDir}
-Exit status	: ${workflow.exitStatus}
-outDir			: ${params.outDir}
+workflow {
+    if (params.help) { showHelp() }
+    if (params.version) { showVersion() }
 
-===================================================================
+    validateSteps()
+    showInfo()
+    
+    switch (params.step) {
+        case 'preprocess':
+            preprocessWorkflow()
+            break
 
-"""
-
-println summary
-
+        case 'classify':
+            classifyWorkflow()
+            break
+    }
 }
+
+workflow preprocessWorkflow {
+    inputs = validateParams()
+
+    preprocess(
+        inputs.bam,
+        inputs.reference,
+        inputs.vcf,
+        params.outdir
+    )
+}
+
+workflow classifyWorkflow {
+    classify(
+        params.bam,
+        params.reference,
+        params.model,
+        params.outdir,
+        params.model_name
+    )
+}
+    
+process preprocess {
+    input:
+    path vcf
+    path bam
+    path reference
+    path outdir
+
+    output:
+    path "${outdir}/preprocessed_results"
+
+    script:
+    """
+    echo "Preprocessing FFPE BAM file: $bam"
+    echo "Using reference genome: $reference"
+    echo "Input VCF: $vcf"
+    echo "Output will be stored in ${outdir}/preprocessed_results"
+
+    mkdir -p ${outdir}/preprocessed_results
+    """
+}
+
+process classify {
+    input:
+    path bam
+    path reference
+    path model
+    path outdir
+    // val modelName
+
+    output:
+    path "${outdir}/classification_results"
+
+    script:
+    """
+    echo "Classifying FFPE BAM file: $bam"
+    echo "Using reference genome: $reference"
+    echo "Using model: $model ($modelName)"
+    echo "Output will be stored in ${outdir}/classification_results"
+    """
+}
+
+workflow.onComplete {
+    workflow.success 
+        ? logSuccess("\nDone! FFPErase ran successfully. See the results in: ${params.outdir}") 
+        : logError("\nOops .. something went wrong")
+}
+
+
+// Define the preprocess workflow
+// def runPreprocess() {
+//     println "Running preprocessing step..."
+//     process preprocess {
+//         input:
+//         path ffpeBam from params.bam
+//         path reference from params.reference
+//         path vcf from params.vcf
+
+//         output:
+//         path "${params.outdir}/preprocessed_results"
+
+//         script:
+//         """
+//         # Example preprocessing script
+//         echo "Preprocessing FFPE BAM file: $ffpeBam"
+//         echo "Using reference genome: $reference"
+//         echo "Input VCF: $vcf"
+//         echo "Output will be stored in ${params.outdir}/preprocessed_results"
+//         """
+//     }
+// }
+
+// // Define the classify workflow
+// def runClassify() {
+//     println "Running classification step..."
+//     process classify {
+//         input:
+//         path ffpeBam from params.bam
+//         path reference from params.reference
+//         path modelPath from params.model
+//         val modelName from params.model_name
+
+//         output:
+//         path "${params.outdir}/classification_results"
+
+//         script:
+//         """
+//         # Example classification script
+//         echo "Classifying FFPE BAM file: $ffpeBam"
+//         echo "Using reference genome: $reference"
+//         echo "Using model: $modelPath ($modelName)"
+//         echo "Output will be stored in ${params.outdir}/classification_results"
+//         """
+//     }
+// }
