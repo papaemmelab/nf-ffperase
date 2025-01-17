@@ -12,3 +12,4 @@ tmp
 tests/outdir/*
 outdir
 plugins
+results

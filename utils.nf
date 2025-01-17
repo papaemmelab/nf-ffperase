@@ -1,4 +1,4 @@
-// Miscellaneous Utils
+// Logging Utils
 
 def logWithColor(message, color) {
     log.info "${color}${message}\u001B[0m"
@@ -14,4 +14,13 @@ def logError(message) {
 }
 def logInfo(message) {
     logWithColor(message, "\u001B[36m")  // Cyan
+}
+
+// File Utils
+
+def mkdirs(outdir) {
+    outdir = new File(new File(outdir).absolutePath)
+    if (!outdir.exists()) {
+        outdir.mkdirs()
+    }
 }
