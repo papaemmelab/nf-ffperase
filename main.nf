@@ -128,7 +128,7 @@ def validateSteps() {
 
 def createOutdirs() {
     if (!params.outdir) {
-        params.outdir = "${workflow.workDir}/results"
+        params.outdir = "${workflow.projectDir}/results"
     }
     
     outdirPreprocess = "${params.outdir}/preprocessed_results"
@@ -177,18 +177,16 @@ workflow preprocessWorkflow {
         inputs.vcf, 
         inputs.outdir
     ) | flatten
-    pileupVcfs = pileup(
-        splitVcfs,
-        inputs.bam,
-        inputs.bai,
-        inputs.reference
-    )
-    merged_pileup(pileupVcfs)
 
-    // Piccard Metrics
+    pileupInputs = splitVcfs
+        .combine(inputs.bam)
+        .combine(inputs.bai)
+        .combine(inputs.reference)
+        .combine(inputs.outdir)
+        .map { nested -> nested.flatten() }
+    pileupVcfs = pileup(pileupInputs) | collect
 
-
-    // Annotate 
+    mergedPileup = merge_pileup(pileupVcfs, inputs.outdir)
 
     
 }

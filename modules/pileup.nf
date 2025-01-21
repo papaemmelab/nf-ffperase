@@ -34,13 +34,9 @@ process split_pileup {
 
 process pileup {
     publishDir "${outdir}/preprocessed_results", mode: "copy"
-    container "papaemmelab/annotate-w-pileup:v0.1.0"
     
     input:
-    path splitVcf
-    path bam 
-    path bai
-    path reference
+    tuple path(splitVcf), path(bam), path(bai), path(reference), path(outdir)
 
     output:
     path "pileup/pileup_*.txt", emit: pileupVcfs
@@ -68,18 +64,21 @@ process merge_pileup {
     publishDir "${outdir}/preprocessed_results", mode: "copy"
 
     input:
-    path pileupVcf
+    path pileupVcfs
+    path outdir
 
     output:
     path "merged_pileup.txt", emit: mergedPileup
 
     script:
     """
+    pileup_files=( ${pileupVcfs} )
+    
     # Get the header from the first file
-    head -n 1 ${pileup_files[0]} > merged_pileup.txt
+    head -n 1 "\${pileup_files[0]}" > merged_pileup.txt
 
     # Concatenate all files, skipping headers from subsequent files
-    for f in ${pileup_files[*]}; do
+    for f in "\${pileup_files[@]}"; do
         tail -n +2 "\$f" >> merged_pileup.txt
     done
     """
