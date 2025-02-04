@@ -7,7 +7,7 @@ import pandas as pd
 pd.options.display.float_format = "{:.2f}".format
 
 def classify_with_random_forest(
-    model_path, model_name, annotated_tsv_path=None, mutation_type=None, output_dir=None
+    model_path, model_name, mutation_type, annotated_tsv_path, output_dir
 ):
     """
     Classifies data using a Random Forest model.
@@ -15,9 +15,9 @@ def classify_with_random_forest(
     Args:
         model_path (str): Path to the trained model (pickle file).
         model_name (str): Name of the model for labeling outputs.
-        annotated_tsv_path (str, optional): Path to the annotated TSV file.
         mutation_type (str): Type of mutation ("snvs" or "indels").
-        output_dir (str): Directory to save the output files.
+        annotated_tsv_path (str): Path to the annotated TSV file.
+        output_dir (str, optional): Directory to save the output files.
 
     Returns:
         None
@@ -34,7 +34,7 @@ def classify_with_random_forest(
         model = pickle.load(model_file)
 
     if not hasattr(model, "predict") or not hasattr(model, "predict_proba"):
-        raise Exception("Invalid model: Missing necessary methods.")
+        raise Exception("Invalid pickle file model: Missing necessary methods.")
 
     # Locate input dataframe
     input_df_path = None
@@ -44,6 +44,7 @@ def classify_with_random_forest(
         Path(output_dir) / "input_df.tsv",
     ]
     for path in potential_paths:
+        print("Path to check:", path)
         if path.exists():
             input_df_path = path
             break
@@ -109,15 +110,17 @@ if __name__ == "__main__":
         "--model-name", required=True, help="Name of the model for labeling outputs."
     )
     parser.add_argument(
+        "--mutation-type", required=True, help='Type of mutation ("snvs" or "indels").'
+    )
+    parser.add_argument(
         "--annotated-tsv",
         help="Path to the annotated TSV file (optional).",
         default=None,
     )
     parser.add_argument(
-        "--mutation-type", required=True, help='Type of mutation ("snvs" or "indels").'
-    )
-    parser.add_argument(
-        "--output-dir", required=True, help="Directory to save the output files."
+        "--output-dir",
+        default=".",
+        help="Directory to save the output files.",
     )
 
     args = parser.parse_args()

@@ -17,6 +17,10 @@ include {
     annotate_variants
 } from './modules/annotate.nf'
 
+include {
+    classify_random_forest
+} from './modules/classify.nf'
+
 
 def showVersion() {
     version = "v0.1.0"
@@ -39,13 +43,15 @@ def showHelp() {
         Steps:
             preprocess        Compute metrics from input vcf.
             classify          Classify variants as real or FFPE artifacts.
+            full              Run 'preprocess' + 'classify'.
 
         Preprocess Options:
             --vcf               SNV/indel mutations VCF file [required].
             --bam               Input FFPE bam file [required].
-            --reference         Reference fasta used to align --ffpe-bam [required].
-            --bed               Bedfile
+            --reference         Reference fasta used to align the FFPE bam [required].
             --outdir            Output location for results [required].
+            --bed               Bedfile path for the regions covered by the bam.
+                                [default: assets/gr37.no_mt_unmapped.bed.gz]
             --minBaseq          Minimum BaseQ to assess reads with pileup. [0-60] [default: 20]
             --minDepth          Minimum read depth to assess reads with pileup. [default: 20]
             --minMapq           Minimum MAPQ to assess reads with pileup. [0-60] [default: 20]
@@ -57,8 +63,7 @@ def showHelp() {
 
         Classify Options:
             --model             Path to trained model [required].
-            --bam               Input FFPE bam file [required].
-            --reference         Reference fasta used to align --ffpe-bam [required].
+            --modelName         Name of the trained model [required].
             --outdir            Output location for results [required].
 
     """.stripIndent()
@@ -109,6 +114,7 @@ def validateInputs() {
         requiredParams.put("bed", false)
         requiredParams.put("picard", false)
         requiredParams.put("picardMetrics", false)
+        requiredParams.put("model", true)
     } else {
         requiredParams.put("model", true)
     }
@@ -140,7 +146,7 @@ def validateInputs() {
 }
 
 def validateSteps() {
-    def validSteps = ['preprocess', 'classify']
+    def validSteps = ['preprocess', 'classify', 'full']
     if (!params.step) {
         showHelp()
     } else if (!validSteps.contains(params.step)) {
@@ -165,6 +171,11 @@ workflow {
             break
 
         case 'classify':
+            classifyWorkflow()
+            break
+
+        case 'full':
+            preprocessWorkflow()
             classifyWorkflow()
             break
     }
@@ -212,7 +223,6 @@ workflow preprocessWorkflow {
             inputs.picardMetrics
         )
     } else {
-
         // Compute new metrics
         splitBed = split_intervals(
             inputs.bam,
@@ -232,46 +242,31 @@ workflow preprocessWorkflow {
     }
 
     // 3. Annotate with Pileup and Picard results
-    annotate_variants(
+    annotatedVariants = annotate_variants(
         pileupOutput,
         picardOutput,
         inputs.reference,
         params.mutationType == "indels"
     )
+
+    // 4. Classify
+    classify_random_forest(
+        annotatedVariants,
+        inputs.model,
+        params.modelName,
+        params.mutationType
+    )
 }
 
 workflow classifyWorkflow {
     inputs = validateParams()
-    outdir= Channel.fromPath("${params.outdir}/classify")
 
-    classify(
-        inputs.bam,
-        inputs.bai,
-        inputs.reference,
-        inputs.model,
-        inputs.model_name,
-        outdir,
-    )
-}
-
-process classify {
-    input:
-    path bam
-    path reference
-    path model
-    path outdir
-    // val modelName
-
-    output:
-    path "${outdir}/classification_results"
-
-    script:
-    """
-    echo "Classifying FFPE BAM file: $bam"
-    echo "Using reference genome: $reference"
-    echo "Using model: $model ($modelName)"
-    echo "Output will be stored in ${outdir}/classification_results"
-    """
+    // classify(
+    //     inputs.tsv,
+    //     inputs.model,
+    //     params.model_name,
+    //     params.mutationType,
+    // )
 }
 
 workflow.onComplete {

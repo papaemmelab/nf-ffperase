@@ -1,5 +1,5 @@
 process annotate_variants {
-    publishDir "${params.outdirPreprocess}/annotate", mode: "copy"
+    publishDir "${params.outdirPreprocess}", mode: "copy"
 
     input:
     path pileupOutput

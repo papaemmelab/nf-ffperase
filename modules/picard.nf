@@ -20,7 +20,7 @@ process split_intervals {
 }
 
 process picard {
-    publishDir "${input.outdirPreprocess}/picard", mode: "copy"
+    publishDir "${params.outdirPreprocess}/picard", mode: "copy"
 
     input:
     val bedSplitLine
