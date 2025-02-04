@@ -1,10 +1,22 @@
 include { logSuccess; logWarning; logError; logInfo; mkdirs } from './utils.nf'
 
-include { split_pileup } from './modules/pileup.nf'
-include { pileup } from './modules/pileup.nf'
-include { merge_pileup } from './modules/pileup.nf'
+include {
+    split_pileup
+    pileup
+    merge_pileup
+} from './modules/pileup.nf'
 
-// params.outdir = "${workflow.projectDir}/results"
+include {
+    split_intervals
+    picard
+    merge_picard
+    copy_picard
+} from './modules/picard.nf'
+
+include {
+    annotate_variants
+} from './modules/annotate.nf'
+
 
 def showVersion() {
     version = "v0.1.0"
@@ -32,7 +44,16 @@ def showHelp() {
             --vcf               SNV/indel mutations VCF file [required].
             --bam               Input FFPE bam file [required].
             --reference         Reference fasta used to align --ffpe-bam [required].
+            --bed               Bedfile
             --outdir            Output location for results [required].
+            --minBaseq          Minimum BaseQ to assess reads with pileup. [0-60] [default: 20]
+            --minDepth          Minimum read depth to assess reads with pileup. [default: 20]
+            --minMapq           Minimum MAPQ to assess reads with pileup. [0-60] [default: 20]
+            --splitReads        Number of reads to split into picard jobs. [default: 7,500,000]
+            --coverage          Calculated median coverage [required].
+            --medianInsert      Calculated median insert size [required].
+            --picardMetrics     Output to pre-computed Picard's CollectSequencingArtifactMetrics.
+            --mutationType      Mutation type, valid choices: "snvs", "indels". [Default: "snvs"]
 
         Classify Options:
             --model             Path to trained model [required].
@@ -46,9 +67,10 @@ def showHelp() {
 
 def showInfo() {
     stepInputs = params.step == "preprocess" ? (
-        "vcf              : ${params.vcf}"
-    ): (
-        "model            : ${params.model}"
+     """vcf              : ${params.vcf}
+        bed              : ${params.bed}"""
+    ) : (
+     """model            : ${params.model}"""
     )
 
     log.info """\
@@ -75,7 +97,7 @@ def showInfo() {
     """.stripIndent()
 }
 
-def validateParams() {
+def validateInputs() {
 
     requiredParams = [
         bam: true,
@@ -84,12 +106,16 @@ def validateParams() {
     ]
     if (params.step == "preprocess") {
         requiredParams.put("vcf", true)
+        requiredParams.put("bed", false)
+        requiredParams.put("picard", false)
+        requiredParams.put("picardMetrics", false)
     } else {
         requiredParams.put("model", true)
     }
 
     def channels = [:]
     requiredParams.each { key, isRequired ->
+
         // Validate param is provided
         def paramValue = params."${key}"
         if (!paramValue && isRequired) {
@@ -126,36 +152,11 @@ def validateSteps() {
     }
 }
 
-def createOutdirs() {
-    if (!params.outdir) {
-        params.outdir = "${workflow.projectDir}/results"
-    }
-    
-    outdirPreprocess = "${params.outdir}/preprocessed_results"
-    outdirClassify = "${params.outdir}/classification_results"
-    
-    switch (params.step) {
-        case 'preprocess':
-            mkdirs(outdirPreprocess)
-            break
-
-        case 'classify':
-            mkdirs(outdirClassify)
-            break
-        
-        case 'both':
-            mkdirs(outdirPreprocess)
-            mkdirs(outdirClassify)
-            break
-    }
-}
-
 workflow {
     if (params.help) { showHelp() }
     if (params.version) { showVersion() }
 
     validateSteps()
-    createOutdirs()
     showInfo()
     
     switch (params.step) {
@@ -170,36 +171,86 @@ workflow {
 }
 
 workflow preprocessWorkflow {
-    inputs = validateParams()
+    // Check Inputs
+    if (!params.coverage) {
+        logError "Error: --coverage is required."
+        exit 1
+    }
+    if (!params.medianInsert) {
+        logError "Error: --medianInsert is required."
+        exit 1
+    }
+    def validMutationTypes = ["snvs", "indels"]
+    if (!validMutationTypes.contains(params.mutationType)) {
+        logError """\
+            Error: Invalid Mutation Type: '${params.mutationType}.'
+            Valid choices are: ${validMutationTypes.join(', ')}.
+        """.stripIndent()
+        exit 1
+    }
 
-    // Pileup Mutations
+    inputs = validateInputs()
+
+    // 1. Pileup Mutations
     splitVcfs = split_pileup(
-        inputs.vcf, 
-        inputs.outdir
+        inputs.vcf
     ) | flatten
 
     pileupInputs = splitVcfs
         .combine(inputs.bam)
         .combine(inputs.bai)
         .combine(inputs.reference)
-        .combine(inputs.outdir)
         .map { nested -> nested.flatten() }
     pileupVcfs = pileup(pileupInputs) | collect
 
-    mergedPileup = merge_pileup(pileupVcfs, inputs.outdir)
+    pileupOutput = merge_pileup(pileupVcfs)
 
-    
+    // 2. Get Metrics from Picard
+    if (inputs.picardMetrics) {
+        // Read from pre-computed metrics
+        picardOutput = copy_picard(
+            inputs.picardMetrics
+        )
+    } else {
+
+        // Compute new metrics
+        splitBed = split_intervals(
+            inputs.bam,
+            inputs.bai,
+            inputs.bed,
+        )
+        splitMetrics = picard(
+            splitBed.splitText().map { line -> line.trim() },
+            inputs.bam,
+            inputs.bai,
+            inputs.reference,
+            inputs.picard,
+        )
+        picardOutput = merge_picard(
+            splitMetrics
+        )
+    }
+
+    // 3. Annotate with Pileup and Picard results
+    annotate_variants(
+        pileupOutput,
+        picardOutput,
+        inputs.reference,
+        params.mutationType == "indels"
+    )
 }
 
 workflow classifyWorkflow {
     inputs = validateParams()
+    outdir= Channel.fromPath("${params.outdir}/classify")
 
     classify(
-        params.bam,
-        params.reference,
-        params.model,
-        params.outdir,
-        params.model_name
+        inputs.bam,
+        inputs.bai,
+        inputs.reference,
+        inputs.model,
+        inputs.model_name,
+        outdir,
     )
 }
 

@@ -13,3 +13,4 @@ tests/outdir/*
 outdir
 plugins
 results
+**/__pycache__

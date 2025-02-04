@@ -18,9 +18,9 @@ def logInfo(message) {
 
 // File Utils
 
-def mkdirs(outdir) {
-    outdir = new File(new File(outdir).absolutePath)
-    if (!outdir.exists()) {
-        outdir.mkdirs()
+def mkdirs(path) {
+    path = new File(new File(path).absolutePath)
+    if (!path.exists()) {
+        path.mkdirs()
     }
 }

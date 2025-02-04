@@ -1,6 +1,8 @@
-# annotate_w_pileup
+# Install binaries
 
-## Compile binary
+## 1. `annotate_w_pileup`
+
+### Compile binary
 
 The get the static binary, the script needs to be compiled using nim.
 
@@ -25,3 +27,21 @@ The get the static binary, the script needs to be compiled using nim.
 ### For Apple M1/M2 users
 
 The static builder does not work on Apple M1/M2 chips. You can compile the script using the following command:
+
+# 2. `split_bed_by_index`
+
+Download binary in release `v0.2.0`:
+
+```
+wget -O bin/split_bed_by_index https://github.com/papaemmelab/split_bed_by_index/releases/download/0.2.0b/split_bed_by_index && \
+chmod +x bin/split_bed_by_index
+```
+
+# 3. `picard.jar`
+
+Download jar file from releases `v2.25.6`:
+
+```
+wget -O assets/picard.jar https://github.com/broadinstitute/picard/releases/download/2.25.6/picard.jar
+chmod +x assets/picard.jar
+```

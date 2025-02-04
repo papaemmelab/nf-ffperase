@@ -4,6 +4,7 @@ import pickle
 from pathlib import Path
 import pandas as pd
 
+pd.options.display.float_format = "{:.2f}".format
 
 def classify_with_random_forest(
     model_path, model_name, annotated_tsv_path=None, mutation_type=None, output_dir=None
