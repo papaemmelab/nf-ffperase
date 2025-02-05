@@ -42,7 +42,7 @@ def showVersion() {
 
 def showHelp() {
     logInfo """\
-        Usage: nextflow run papaemmelab/nf-ffperase --step <preprocess|classify> [options]
+        Usage: nextflow run papaemmelab/nf-ffperase --step <preprocess|classify|full> [options]
 
         FFPErase is a tool for pre-processing and classifying FFPE artifact mutations.
         
