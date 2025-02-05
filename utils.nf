@@ -49,9 +49,9 @@ def mkdirs(path) {
 }
 
 def rmdir(path) {
-    def dir = new File(path)
-    if (!dir.exists()) { return }
-    if (dir.deleteDir()) {
+    path = new File(new File(path).absolutePath)
+    if (!path.exists()) { return }
+    if (path.deleteDir()) {
         println "Directory '${path}' removed."
     } else {
         println "Failed to remove directory '${path}'."

@@ -259,13 +259,15 @@ workflow preprocessWorkflow {
         params.mutationType
     )
 
-    // 4. Clean Directories
-    rmdir("${params.outdirPreprocess}/splits")
-    rmdir("${params.outdirPreprocess}/pileups")
-
     emit:
     featuresTsv
 }
+
+// workflow.preprocessWorkflow.onComplete {
+//     // Clean directories
+//     rmdir("${params.outdirPreprocess}/splits")
+//     rmdir("${params.outdirPreprocess}/pileup")
+// }
 
 workflow classifyWorkflow {
     take:
@@ -274,13 +276,16 @@ workflow classifyWorkflow {
     main:
     inputs = validateInputs()
 
-    classify_random_forest(
+    classifiedTsv = classify_random_forest(
         featuresTsv,
         inputs.model,
         params.modelName,
         params.mutationType,
         inputs.tsv
     )
+
+    emit:
+    classifiedTsv
 }
 
 workflow {
@@ -310,7 +315,14 @@ workflow {
 }
 
 workflow.onComplete {
-    workflow.success 
-        ? (logSuccess("\nDone! ${coloredTitle()}\u001B[32m ran successfully. See results: ${getAbsolute(params.outdir)}"))
-        : (logError("\nOops .. something went wrong"))
+    if (workflow.success) {
+        // Clean intermediate files
+        rmdir("${params.outdirPreprocess}/splits")
+        rmdir("${params.outdirPreprocess}/pileup")
+        rmdir("${params.outdirPreprocess}/picard")
+
+        logSuccess("\nDone! ${coloredTitle()}\u001B[32m ran successfully. See results: ${getAbsolute(params.outdir)}")
+    } else {
+        logError("\nOops .. something went wrong")
+    }
 }

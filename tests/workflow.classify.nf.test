@@ -1,0 +1,29 @@
+nextflow_workflow {
+
+    name "Test Classify Step"
+    script "main.nf"
+    workflow "classifyWorkflow"
+
+    test("Should run --step classify") {
+        when {
+            params.step = "classify"
+            workflow {
+                """
+                input[0] = Channel.fromPath('tests/data/input_df.tsv')
+                """
+            }
+        }
+        then {
+            with(workflow) {
+                assert success
+                assert exitStatus == 0
+                assert trace.tasks().size() == 1
+                assert trace.succeeded().size() == 1
+            }
+        }
+    }
+
+}
+// TODO: 
+// - Classify should allow to have --input_df
+// - Finish tests

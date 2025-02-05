@@ -12,7 +12,7 @@ tmp
 tests/outdir/*
 outdir
 plugins
-results*
+result*
 **/__pycache__
 
 # Models

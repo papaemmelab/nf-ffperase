@@ -1,0 +1,21 @@
+nextflow_workflow {
+
+    name "Test Preprocess Step"
+    script "main.nf"
+    workflow "preprocessWorkflow"
+
+    test("Should run --step preprocess") {
+        when {
+            params.step = "preprocess"
+        }
+        then {
+            with(workflow) {
+                assert success
+                assert exitStatus == 0
+                assert trace.tasks().size() == 5 // 3 pileup, 1 picard, 1 annotation
+                assert trace.succeeded().size() == 5
+            }
+        }
+    }
+
+}
