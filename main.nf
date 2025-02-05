@@ -71,10 +71,10 @@ def showHelp() {
             --mutationType      Mutation type, valid choices: "snvs", "indels". [Default: "snvs"]
 
         Classify Options:
+            --features          Tsv with preprocessed features. [default: <outdir>/preprocess/input_df.tsv]
             --model             Path to trained model [required].
             --modelName         Name of the trained model [required].
             --outdir            Output location for results [required].
-            --input             Tsv with preprocessed features. [default: <outdir>/preprocess/input_df.tsv]
             --tsv               Tsv that will be used to add annotated columns to the classified output.
 
     """.stripIndent()
@@ -82,6 +82,8 @@ def showHelp() {
 }
 
 def showInfo() {
+    logMessage += """
+    """
     logMessage = """\
         ================================================================
         ${coloredTitle('  ')}
@@ -90,6 +92,14 @@ def showInfo() {
         Documentation @ https://github.com/papaemmlab/nf-ffperase
         Log issues    @ https://github.com/papaemmlab/nf-ffperase/issues
 
+        ----------------------------------------------------------------
+        Workflow:
+        ----------------------------------------------------------------
+        projectDir    : ${workflow.projectDir}
+        workDir       : ${workflow.workDir}
+
+        Cmd line:
+        \$ ${workflow.commandLine}
         ----------------------------------------------------------------
         Running ${params.step} workflow with run parameters:
         ----------------------------------------------------------------
@@ -128,14 +138,6 @@ def showInfo() {
     """) : ""
 
     logMessage += """
-        ----------------------------------------------------------------
-        Workflow:
-        ----------------------------------------------------------------
-        projectDir    : ${workflow.projectDir}
-        workDir       : ${workflow.workDir}
-
-        Cmd line: 
-        \$ ${workflow.commandLine}
         ----------------------------------------------------------------
     """
 
