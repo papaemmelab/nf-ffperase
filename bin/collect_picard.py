@@ -100,7 +100,6 @@ def get_picard_metrics(picard_dir):
         )
     
     # Save pre adapter metrics output
-    print(outfile.info())
     outfile.to_csv(
         "pre_adapter_metrics.tsv",
         float_format="%.6f",

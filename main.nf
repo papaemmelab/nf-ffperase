@@ -39,11 +39,11 @@ def showHelp() {
         FFPErase is a tool for pre-processing and classifying FFPE artifact mutations.
         
         For more info: https://github.com/papaemmlab/nf-ffperase
-
-        Steps:
-            preprocess        Compute metrics from input vcf.
-            classify          Classify variants as real or FFPE artifacts.
-            full              Run 'preprocess' + 'classify'.
+        
+        Steps (--step):
+            full                [Default] Runs both preprocess + classify.
+            preprocess          Compute metrics for features from input vcf.
+            classify            Classify variants as real or FFPE artifacts.
 
         Preprocess Options:
             --vcf               SNV/indel mutations VCF file [required].
@@ -55,6 +55,7 @@ def showHelp() {
             --minBaseq          Minimum BaseQ to assess reads with pileup. [0-60] [default: 20]
             --minDepth          Minimum read depth to assess reads with pileup. [default: 20]
             --minMapq           Minimum MAPQ to assess reads with pileup. [0-60] [default: 20]
+            --splitPileup       Number of variants per file for pileup jobs. [default: 50]
             --splitReads        Number of reads to split into picard jobs. [default: 7,500,000]
             --coverage          Calculated median coverage [required].
             --medianInsert      Calculated median insert size [required].
@@ -65,20 +66,14 @@ def showHelp() {
             --model             Path to trained model [required].
             --modelName         Name of the trained model [required].
             --outdir            Output location for results [required].
+            --tsv               Tsv that will be used to add annotated columns to the classified output.
 
     """.stripIndent()
     exit 0
 }
 
 def showInfo() {
-    stepInputs = params.step == "preprocess" ? (
-     """vcf              : ${params.vcf}
-        bed              : ${params.bed}"""
-    ) : (
-     """model            : ${params.model}"""
-    )
-
-    log.info """\
+    logMessage = """\
         ===================================================================
         F F P E R A S E
         ===================================================================
@@ -87,36 +82,67 @@ def showInfo() {
         Log issues      @ https://github.com/papaemmlab/nf-ffperase/issues
 
         -------------------------------------------------------------------
-        Workflow run parameters
+        Running ${params.step} workflow with run parameters:
         -------------------------------------------------------------------
         step             : ${params.step}
-        workDir          : ${workflow.workDir}
-        -------------------------------------------------------------------
-        ${stepInputs}
+        outdir           : ${params.outdir}\
+    """
+
+    logMessage += ["preprocess", "full"].contains(params.step) ? (
+    """
         bam              : ${params.bam}
         reference        : ${params.reference}
-        outdir           : ${params.outdir}
+        vcf              : ${params.vcf}
+        bed              : ${params.bed}
+        picard           : ${params.picard}
+        picardMetrics    : ${params.picardMetrics}
+        minMapq          : ${params.minMapq}
+        minBaseq         : ${params.minBaseq}
+        minDepth         : ${params.minDepth}
+        splitReads       : ${params.splitReads}
+        splitPileup      : ${params.splitPileup}
+        coverage         : ${params.coverage}
+        medianInsert     : ${params.medianInsert}
+        mutationType     : ${params.mutationType}\
+    """) : ""
+    
+    logMessage += ["classify", "full"].contains(params.step) ? (
+    """
+        model            : ${params.model}
+        modelName        : ${params.modelName}
+        tsv              : ${params.tsv}\
+    """) : ""
+
+    logMessage += """
         -------------------------------------------------------------------
-        
-        Running ${params.step} workflow...
-    """.stripIndent()
+        Workflow:
+        -------------------------------------------------------------------
+        Project          : ${workflow.projectDir}
+        workDir          : ${workflow.workDir}
+        Cmd line         : ${workflow.commandLine}
+        -------------------------------------------------------------------
+    """
+
+    log.info(logMessage.stripIndent())
 }
 
 def validateInputs() {
 
     requiredParams = [
-        bam: true,
-        reference: true,
         outdir: true,
     ]
-    if (params.step == "preprocess") {
+    if (["preprocess", "full"].contains(params.step)) {
+        requiredParams.put("bam", true)
+        requiredParams.put("reference", true)
         requiredParams.put("vcf", true)
         requiredParams.put("bed", false)
         requiredParams.put("picard", false)
         requiredParams.put("picardMetrics", false)
         requiredParams.put("model", true)
-    } else {
+    }
+    if (["classify", "full"].contains(params.step)) {
         requiredParams.put("model", true)
+        requiredParams.put("tsv", false)
     }
 
     def channels = [:]
@@ -147,9 +173,7 @@ def validateInputs() {
 
 def validateSteps() {
     def validSteps = ['preprocess', 'classify', 'full']
-    if (!params.step) {
-        showHelp()
-    } else if (!validSteps.contains(params.step)) {
+    if (!validSteps.contains(params.step)) {
         logError """\
             Error: Invalid step '${params.step}'
             Available steps: ${validSteps.join(', ')}
@@ -158,30 +182,8 @@ def validateSteps() {
     }
 }
 
-workflow {
-    if (params.help) { showHelp() }
-    if (params.version) { showVersion() }
-
-    validateSteps()
-    showInfo()
-    
-    switch (params.step) {
-        case 'preprocess':
-            preprocessWorkflow()
-            break
-
-        case 'classify':
-            classifyWorkflow()
-            break
-
-        case 'full':
-            preprocessWorkflow()
-            classifyWorkflow()
-            break
-    }
-}
-
 workflow preprocessWorkflow {
+    main:
     // Check Inputs
     if (!params.coverage) {
         logError "Error: --coverage is required."
@@ -242,31 +244,60 @@ workflow preprocessWorkflow {
     }
 
     // 3. Annotate with Pileup and Picard results
-    annotatedVariants = annotate_variants(
+    featuresTsv = annotate_variants(
         pileupOutput,
         picardOutput,
         inputs.reference,
-        params.mutationType == "indels"
-    )
-
-    // 4. Classify
-    classify_random_forest(
-        annotatedVariants,
-        inputs.model,
-        params.modelName,
         params.mutationType
     )
+
+    // TODO: Delete splits and pileups dirs
+
+    emit:
+    featuresTsv
 }
 
 workflow classifyWorkflow {
-    inputs = validateParams()
+    take:
+    featuresTsv
+    
+    main:
+    inputs = validateInputs()
 
-    // classify(
-    //     inputs.tsv,
-    //     inputs.model,
-    //     params.model_name,
-    //     params.mutationType,
-    // )
+    classify_random_forest(
+        featuresTsv,
+        inputs.model,
+        params.modelName,
+        params.mutationType,
+        inputs.tsv
+    )
+}
+
+workflow {
+    if (params.help) { showHelp() }
+    if (params.version) { showVersion() }
+
+    validateSteps()
+    showInfo()
+    
+    def featuresTsv
+
+    if (params.step == "preprocess") {
+        featuresTsv = preprocessWorkflow()
+    }
+
+    if (params.step == "classify") {
+        featuresTsv = Channel
+            .fromPath("${params.outdirPreprocess}/input_df.tsv")
+            .ifEmpty("Error: Input file not found: ${params.outdirPreprocess}/input_df.tsv")
+        featuresTsv.view()
+        classifyWorkflow(featuresTsv)
+    }
+
+    if (params.step == "full") {
+        featuresTsv = preprocessWorkflow()
+        classifyWorkflow(featuresTsv)
+    }
 }
 
 workflow.onComplete {

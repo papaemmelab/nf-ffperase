@@ -13,7 +13,7 @@ process split_pileup {
     #!/usr/bin/env python
     import os
     
-    ANNOT_LIMIT = 1  # Adjust this limit as needed
+    ANNOT_LIMIT = ${params.splitPileup}
 
     with open('${vcf}', 'r', encoding='utf-8') as f_in:
         lines = list(f_in.readlines())

@@ -6,14 +6,14 @@ process annotate_variants {
     path picardPreAdapter
     path picardBaitBias
     path reference
-    val indels
+    val mutationType
 
     output:
-    path "input_df.tsv", emit: annotatedVariants
+    path "input_df.tsv", emit: featuresTsv
 
 
     script:
-    def indelsOption = indels ? "--indels" : ""
+    def indelsOption = mutationType == "indels" ? "--indels" : ""
     """
     annotate_variants.py ${indelsOption} \
         --pileup ${pileupOutput} \
