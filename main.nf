@@ -1,4 +1,12 @@
-include { logSuccess; logWarning; logError; logInfo; mkdirs } from './utils.nf'
+include { logSuccess
+    logWarning
+    logError
+    logInfo
+    mkdirs
+    rmdir
+    coloredTitle
+    getAbsolute
+} from './utils.nf'
 
 include {
     split_pileup
@@ -74,53 +82,53 @@ def showHelp() {
 
 def showInfo() {
     logMessage = """\
-        ===================================================================
-        F F P E R A S E
-        ===================================================================
+        ================================================================
+        ${coloredTitle('  ')}
+        ================================================================
 
-        Documentation   @ https://github.com/papaemmlab/nf-ffperase
-        Log issues      @ https://github.com/papaemmlab/nf-ffperase/issues
+        Documentation @ https://github.com/papaemmlab/nf-ffperase
+        Log issues    @ https://github.com/papaemmlab/nf-ffperase/issues
 
-        -------------------------------------------------------------------
+        ----------------------------------------------------------------
         Running ${params.step} workflow with run parameters:
-        -------------------------------------------------------------------
-        step             : ${params.step}
-        outdir           : ${params.outdir}\
+        ----------------------------------------------------------------
+        step          : ${params.step}
+        outdir        : ${params.outdir}\
     """
 
     logMessage += ["preprocess", "full"].contains(params.step) ? (
     """
-        bam              : ${params.bam}
-        reference        : ${params.reference}
-        vcf              : ${params.vcf}
-        bed              : ${params.bed}
-        picard           : ${params.picard}
-        picardMetrics    : ${params.picardMetrics}
-        minMapq          : ${params.minMapq}
-        minBaseq         : ${params.minBaseq}
-        minDepth         : ${params.minDepth}
-        splitReads       : ${params.splitReads}
-        splitPileup      : ${params.splitPileup}
-        coverage         : ${params.coverage}
-        medianInsert     : ${params.medianInsert}
-        mutationType     : ${params.mutationType}\
+        bam           : ${params.bam}
+        reference     : ${params.reference}
+        vcf           : ${params.vcf}
+        bed           : ${params.bed}
+        picard        : ${params.picard}
+        picardMetrics : ${params.picardMetrics}
+        minMapq       : ${params.minMapq}
+        minBaseq      : ${params.minBaseq}
+        minDepth      : ${params.minDepth}
+        splitReads    : ${params.splitReads}
+        splitPileup   : ${params.splitPileup}
+        coverage      : ${params.coverage}
+        medianInsert  : ${params.medianInsert}
+        mutationType  : ${params.mutationType}\
     """) : ""
     
     logMessage += ["classify", "full"].contains(params.step) ? (
     """
-        model            : ${params.model}
-        modelName        : ${params.modelName}
-        tsv              : ${params.tsv}\
+        model         : ${params.model}
+        modelName     : ${params.modelName}
+        tsv           : ${params.tsv}\
     """) : ""
 
     logMessage += """
-        -------------------------------------------------------------------
+        ----------------------------------------------------------------
         Workflow:
-        -------------------------------------------------------------------
-        Project          : ${workflow.projectDir}
-        workDir          : ${workflow.workDir}
-        Cmd line         : ${workflow.commandLine}
-        -------------------------------------------------------------------
+        ----------------------------------------------------------------
+        Project       : ${workflow.projectDir}
+        workDir       : ${workflow.workDir}
+        Cmd line      : ${workflow.commandLine}
+        ----------------------------------------------------------------
     """
 
     log.info(logMessage.stripIndent())
@@ -251,7 +259,9 @@ workflow preprocessWorkflow {
         params.mutationType
     )
 
-    // TODO: Delete splits and pileups dirs
+    // 4. Clean Directories
+    rmdir("${params.outdirPreprocess}/splits")
+    rmdir("${params.outdirPreprocess}/pileups")
 
     emit:
     featuresTsv
@@ -290,7 +300,6 @@ workflow {
         featuresTsv = Channel
             .fromPath("${params.outdirPreprocess}/input_df.tsv")
             .ifEmpty("Error: Input file not found: ${params.outdirPreprocess}/input_df.tsv")
-        featuresTsv.view()
         classifyWorkflow(featuresTsv)
     }
 
@@ -302,6 +311,6 @@ workflow {
 
 workflow.onComplete {
     workflow.success 
-        ? logSuccess("\nDone! FFPErase ran successfully. See the results in: ${params.outdir}") 
-        : logError("\nOops .. something went wrong")
+        ? (logSuccess("\nDone! ${coloredTitle()}\u001B[32m ran successfully. See results: ${getAbsolute(params.outdir)}"))
+        : (logError("\nOops .. something went wrong"))
 }
