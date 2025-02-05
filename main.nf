@@ -74,6 +74,7 @@ def showHelp() {
             --model             Path to trained model [required].
             --modelName         Name of the trained model [required].
             --outdir            Output location for results [required].
+            --input             Tsv with preprocessed features. [default: <outdir>/preprocess/input_df.tsv]
             --tsv               Tsv that will be used to add annotated columns to the classified output.
 
     """.stripIndent()
@@ -93,11 +94,13 @@ def showInfo() {
         Running ${params.step} workflow with run parameters:
         ----------------------------------------------------------------
         step          : ${params.step}
-        outdir        : ${params.outdir}\
+        outdir        : ${params.outdir}
     """
 
     logMessage += ["preprocess", "full"].contains(params.step) ? (
     """
+        ** To Preprocess: **
+
         bam           : ${params.bam}
         reference     : ${params.reference}
         vcf           : ${params.vcf}
@@ -111,11 +114,14 @@ def showInfo() {
         splitPileup   : ${params.splitPileup}
         coverage      : ${params.coverage}
         medianInsert  : ${params.medianInsert}
-        mutationType  : ${params.mutationType}\
+        mutationType  : ${params.mutationType}
     """) : ""
     
     logMessage += ["classify", "full"].contains(params.step) ? (
     """
+        ** To Classify: **
+
+        features      : ${params.features}
         model         : ${params.model}
         modelName     : ${params.modelName}
         tsv           : ${params.tsv}\
@@ -125,9 +131,11 @@ def showInfo() {
         ----------------------------------------------------------------
         Workflow:
         ----------------------------------------------------------------
-        Project       : ${workflow.projectDir}
+        projectDir    : ${workflow.projectDir}
         workDir       : ${workflow.workDir}
-        Cmd line      : ${workflow.commandLine}
+
+        Cmd line: 
+        \$ ${workflow.commandLine}
         ----------------------------------------------------------------
     """
 
@@ -149,6 +157,7 @@ def validateInputs() {
         requiredParams.put("model", true)
     }
     if (["classify", "full"].contains(params.step)) {
+        requiredParams.put("features", false)
         requiredParams.put("model", true)
         requiredParams.put("tsv", false)
     }
@@ -263,12 +272,6 @@ workflow preprocessWorkflow {
     featuresTsv
 }
 
-// workflow.preprocessWorkflow.onComplete {
-//     // Clean directories
-//     rmdir("${params.outdirPreprocess}/splits")
-//     rmdir("${params.outdirPreprocess}/pileup")
-// }
-
 workflow classifyWorkflow {
     take:
     featuresTsv
@@ -302,9 +305,7 @@ workflow {
     }
 
     if (params.step == "classify") {
-        featuresTsv = Channel
-            .fromPath("${params.outdirPreprocess}/input_df.tsv")
-            .ifEmpty("Error: Input file not found: ${params.outdirPreprocess}/input_df.tsv")
+        featuresTsv = inputs.features
         classifyWorkflow(featuresTsv)
     }
 

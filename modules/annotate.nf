@@ -15,13 +15,13 @@ process annotate_variants {
     script:
     def indelsOption = mutationType == "indels" ? "--indels" : ""
     """
-    annotate_variants.py ${indelsOption} \
-        --pileup ${pileupOutput} \
-        --picard_preadapter ${picardPreAdapter} \
-        --picard_baitbias ${picardBaitBias} \
-        --reference ${reference} \
-        --coverage ${params.coverage} \
-        --median_insert ${params.medianInsert} \
+    annotate_variants.py ${indelsOption} \\
+        --pileup ${pileupOutput} \\
+        --picard_preadapter ${picardPreAdapter} \\
+        --picard_baitbias ${picardBaitBias} \\
+        --reference ${reference} \\
+        --coverage ${params.coverage} \\
+        --median_insert ${params.medianInsert} \\
         --outdir \$PWD
     """.stripIndent()
 }

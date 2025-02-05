@@ -7,26 +7,27 @@ import pandas as pd
 pd.options.display.float_format = "{:.2f}".format
 
 def classify_with_random_forest(
-    model_path, model_name, mutation_type, annotated_tsv_path, output_dir
+    features_path, model_path, model_name, mutation_type, annotated_tsv_path, outdir
 ):
     """
     Classifies data using a Random Forest model.
 
     Args:
-        model_path (str): Path to the trained model (pickle file).
+        features (str): Path to tsv with preprocessed features.
+        model (str): Path to the trained model (pickle file).
         model_name (str): Name of the model for labeling outputs.
         mutation_type (str): Type of mutation ("snvs" or "indels").
-        annotated_tsv_path (str): Path to the annotated TSV file.
-        output_dir (str, optional): Directory to save the output files.
+        annotated_tsv (str, optional): Path to tsv file to add annotation.
+        outdir (str, optional): Directory to save the output files.
 
     Returns:
         None
     """
     # Ensure output directory exists
-    classify_dir = Path(output_dir) / "classify"
+    classify_dir = Path(outdir) / "classify"
     classify_dir.mkdir(parents=True, exist_ok=True)
 
-    # Paths for output files
+    # Path for output
     out_classified_tsv = classify_dir / f"classified_df_{mutation_type}.tsv"
 
     # Load and validate model
@@ -35,25 +36,9 @@ def classify_with_random_forest(
 
     if not hasattr(model, "predict") or not hasattr(model, "predict_proba"):
         raise Exception("Invalid pickle file model: Missing necessary methods.")
-
-    # Locate input dataframe
-    input_df_path = None
-    potential_paths = [
-        out_classified_tsv,
-        Path(output_dir) / "labeled" / "input_df.labeled.tsv",
-        Path(output_dir) / "input_df.tsv",
-    ]
-    for path in potential_paths:
-        print("Path to check:", path)
-        if path.exists():
-            input_df_path = path
-            break
-
-    if not input_df_path:
-        raise FileNotFoundError("No input dataframe available!")
-
+    
     # Load input dataframe
-    input_df = pd.read_csv(input_df_path, sep="\t", low_memory=False)
+    input_df = pd.read_csv(features_path, sep="\t", low_memory=False)
 
     # Prepare features
     cols_to_drop = ["CHR", "START", "END"]
@@ -104,6 +89,11 @@ if __name__ == "__main__":
         description="Classify the FFPE mutations using the Random Forest model."
     )
     parser.add_argument(
+        "--features",
+        required=True,
+        help="Path to tsv with preprocessed features.",
+    )
+    parser.add_argument(
         "--model", required=True, help="Path to the trained model (pickle file)."
     )
     parser.add_argument(
@@ -118,7 +108,7 @@ if __name__ == "__main__":
         default=None,
     )
     parser.add_argument(
-        "--output-dir",
+        "--outdir",
         default=".",
         help="Directory to save the output files.",
     )
@@ -126,9 +116,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     classify_with_random_forest(
+        features_path=args.features,
         model_path=args.model,
         model_name=args.model_name,
         annotated_tsv_path=args.annotated_tsv,
         mutation_type=args.mutation_type,
-        output_dir=args.output_dir,
+        outdir=args.outdir,
     )

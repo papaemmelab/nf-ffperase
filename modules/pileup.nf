@@ -42,13 +42,13 @@ process pileup {
     """
     BASENAME_VCF=\$(basename ${splitVcf} .vcf)
     
-    annotate_w_pileup \
-        ${bam} \
-        ${reference} \
-        ${splitVcf} \
-        pileup_\${BASENAME_VCF}.txt \
-        --mapq ${params.minMapq} \
-        --baseq ${params.minBaseq} \
+    annotate_w_pileup \\
+        ${bam} \\
+        ${reference} \\
+        ${splitVcf} \\
+        pileup_\${BASENAME_VCF}.txt \\
+        --mapq ${params.minMapq} \\
+        --baseq ${params.minBaseq} \\
         --depth ${params.minDepth}
     """
 }
