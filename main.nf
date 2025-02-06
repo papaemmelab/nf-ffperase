@@ -82,8 +82,6 @@ def showHelp() {
 }
 
 def showInfo() {
-    logMessage += """
-    """
     logMessage = """\
         ================================================================
         ${coloredTitle('  ')}
