@@ -52,8 +52,8 @@ def rmdir(path) {
     path = new File(new File(path).absolutePath)
     if (!path.exists()) { return }
     if (path.deleteDir()) {
-        println "Directory '${path}' removed."
+        logInfo("Directory '${path}' removed.")
     } else {
-        println "Failed to remove directory '${path}'."
+        logWarning("Failed to remove directory '${path}'.")
     }
 }

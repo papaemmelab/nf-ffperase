@@ -98,6 +98,7 @@ def showInfo() {
 
         Cmd line:
         \$ ${workflow.commandLine}
+
         ----------------------------------------------------------------
         Running ${params.step} workflow with run parameters:
         ----------------------------------------------------------------
@@ -129,10 +130,10 @@ def showInfo() {
     """
         ** To Classify: **
 
-        features      : ${params.features}
+        features      : ${params.features ? params.features : "''"}
         model         : ${params.model}
         modelName     : ${params.modelName}
-        tsv           : ${params.tsv}\
+        tsv           : ${new File(params.tsv).name != 'NO_FILE' ? params.tsv : "''"}\
     """) : ""
 
     logMessage += """
@@ -317,7 +318,9 @@ workflow {
 
 workflow.onComplete {
     if (workflow.success) {
+
         // Clean intermediate files
+        log.info("\nCleaning intermediate files...")
         rmdir("${params.outdirPreprocess}/splits")
         rmdir("${params.outdirPreprocess}/pileup")
         rmdir("${params.outdirPreprocess}/picard")
