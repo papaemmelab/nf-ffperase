@@ -58,6 +58,9 @@ def showHelp() {
             --bam               Input FFPE bam file [required].
             --reference         Reference fasta used to align the FFPE bam [required].
             --outdir            Output location for results [required].
+            --coverage          Calculated median coverage [required].
+            --medianInsert      Calculated median insert size [required].
+            --mutationType      Mutation type, valid choices: "snvs", "indels". [Default: "snvs"]
             --bed               Bedfile path for the regions covered by the bam.
                                 [default: assets/gr37.no_mt_unmapped.bed.gz]
             --minBaseq          Minimum BaseQ to assess reads with pileup. [0-60] [default: 20]
@@ -65,10 +68,7 @@ def showHelp() {
             --minMapq           Minimum MAPQ to assess reads with pileup. [0-60] [default: 20]
             --splitPileup       Number of variants per file for pileup jobs. [default: 50]
             --splitReads        Number of reads to split into picard jobs. [default: 7,500,000]
-            --coverage          Calculated median coverage [required].
-            --medianInsert      Calculated median insert size [required].
             --picardMetrics     Output to pre-computed Picard's CollectSequencingArtifactMetrics.
-            --mutationType      Mutation type, valid choices: "snvs", "indels". [Default: "snvs"]
 
         Classify Options:
             --features          Tsv with preprocessed features. [default: <outdir>/preprocess/input_df.tsv]
@@ -113,17 +113,17 @@ def showInfo() {
         bam           : ${params.bam}
         reference     : ${params.reference}
         vcf           : ${params.vcf}
+        coverage      : ${params.coverage}
+        medianInsert  : ${params.medianInsert}
+        mutationType  : ${params.mutationType}
         bed           : ${params.bed}
         picard        : ${params.picard}
-        picardMetrics : ${params.picardMetrics}
+        picardMetrics : ${params.picardMetrics ? params.picardMetrics : "''"}
         minMapq       : ${params.minMapq}
         minBaseq      : ${params.minBaseq}
         minDepth      : ${params.minDepth}
         splitReads    : ${params.splitReads}
         splitPileup   : ${params.splitPileup}
-        coverage      : ${params.coverage}
-        medianInsert  : ${params.medianInsert}
-        mutationType  : ${params.mutationType}
     """) : ""
     
     logMessage += ["classify", "full"].contains(params.step) ? (
@@ -232,6 +232,7 @@ workflow preprocessWorkflow {
         .combine(inputs.bai)
         .combine(inputs.reference)
         .map { nested -> nested.flatten() }
+
     pileupVcfs = pileup(pileupInputs) | collect
 
     pileupOutput = merge_pileup(pileupVcfs)
@@ -249,13 +250,18 @@ workflow preprocessWorkflow {
             inputs.bai,
             inputs.bed,
         )
-        splitMetrics = picard(
-            splitBed.splitText().map { line -> line.trim() },
-            inputs.bam,
-            inputs.bai,
-            inputs.reference,
-            inputs.picard,
-        )
+
+        picardInputs = splitBed
+            .splitText()
+            .map{ line -> line.trim() }
+            .combine(inputs.bam)
+            .combine(inputs.bai)
+            .combine(inputs.reference)
+            .combine(inputs.picard)
+            .map { nested -> nested.flatten() }
+
+        splitMetrics = picard(picardInputs) | collect
+
         picardOutput = merge_picard(
             splitMetrics
         )

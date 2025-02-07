@@ -59,7 +59,7 @@ def get_picard_metrics(picard_dir):
         artifacts = picard_dir
 
     # 1) Merge Pre-adapter artifact
-    pre_adapter_files = glob(join(artifacts, "*pre_adapter_detail_metrics"))
+    pre_adapter_files = glob(join(artifacts, "*pre_adapter_detail_metrics*"))
     if not pre_adapter_files:
         raise FileNotFoundError(
             f"No *pre_adapter_detail_metrics files found in {artifacts}"
@@ -108,7 +108,7 @@ def get_picard_metrics(picard_dir):
     )
 
     # 2) Merge BAIT-BIAS ARTIFACT MERGING
-    bait_bias_files = glob(join(artifacts, "*bait_bias_detail_metrics"))
+    bait_bias_files = glob(join(artifacts, "*bait_bias_detail_metrics*"))
     if not bait_bias_files:
         raise FileNotFoundError(
             f"No *bait_bias_detail_metrics files found in {artifacts}"

@@ -23,34 +23,30 @@ process picard {
     publishDir "${params.outdirPreprocess}/picard", mode: "copy"
 
     input:
-    val bedSplitLine
-    path bam
-    path bai
-    path reference
-    path picard
+    tuple val(bedSplitLine), path(bam), path(bai), path(reference), path(picard)
 
     output:
     path "picard_*", emit: picardFiles
 
     script:
     """
-    CHR=\$(echo "${bedSplitLine}" | cut -f1)
-    START=\$(echo "${bedSplitLine}" | cut -f2)
-    END=\$(echo "${bedSplitLine}" | cut -f3)
-
+    LINE="${bedSplitLine}"
+    CHR=\$(echo "\$LINE" | cut -f1)
+    START=\$(echo "\$LINE" | cut -f2)
+    END=\$(echo "\$LINE" | cut -f3)
     REGION="\${CHR}:\${START}-\${END}"
-    OUTFILE="picard_\${CHR}\${START}_\${END}"
+    OUTFILE="picard_\${CHR}_\${START}_\${END}"
 
     samtools view -h -M ${bam} \${REGION} \
-    | java -jar ${picard} CollectSequencingArtifactMetrics \
-        I=/dev/stdin \
-        O=\${OUTFILE} \
-        R=${reference} \
-        MINIMUM_MAPPING_QUALITY=${params.minMapq} \
-        MINIMUM_QUALITY_SCORE=${params.minBaseq}
+        | java -jar ${picard} CollectSequencingArtifactMetrics \
+            I=/dev/stdin \
+            O=\${OUTFILE} \
+            R=${reference} \
+            MINIMUM_MAPPING_QUALITY=${params.minMapq} \
+            MINIMUM_QUALITY_SCORE=${params.minBaseq}
     """
-
 }
+
 
 process merge_picard {
     publishDir "${params.outdirPreprocess}/picard", mode: "copy"
@@ -64,7 +60,7 @@ process merge_picard {
 
     script:
     """
-    collect_picard.py --dir ${params.outdirPreprocess}/picard
+    collect_picard.py --dir \$PWD
     """.stripIndent()
 }
 
