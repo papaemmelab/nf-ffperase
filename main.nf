@@ -222,48 +222,35 @@ workflow preprocessWorkflow {
     inputs = validateInputs()
 
     // 1. Pileup Mutations
-    splitVcfs = split_pileup(
-        inputs.vcf
-    ) | flatten
-
-    pileupInputs = splitVcfs
-        .combine(inputs.bam)
-        .combine(inputs.bai)
-        .combine(inputs.reference)
-        .map { nested -> nested.flatten() }
-
-    pileupVcfs = pileup(pileupInputs) | collect
-
-    pileupOutput = merge_pileup(pileupVcfs)
+    pileupOutput = inputs.vcf
+        | split_pileup
+        | flatten
+        | combine(inputs.bam)
+        | combine(inputs.bai)
+        | combine(inputs.reference)
+        | map { nested -> nested.flatten() }
+        | pileup
+        | collect
+        | merge_pileup
 
     // 2. Get Metrics from Picard
     if (inputs.picardMetrics) {
         // Read from pre-computed metrics
-        picardOutput = copy_picard(
-            inputs.picardMetrics
-        )
+        picardOutput = inputs.picardMetrics | copy_picard
     } else {
         // Compute new metrics
-        splitBed = split_intervals(
-            inputs.bam,
-            inputs.bai,
-            inputs.bed,
-        )
-
-        picardInputs = splitBed
-            .splitText()
-            .map{ line -> line.trim() }
-            .combine(inputs.bam)
-            .combine(inputs.bai)
-            .combine(inputs.reference)
-            .combine(inputs.picard)
-            .map { nested -> nested.flatten() }
-
-        splitMetrics = picard(picardInputs) | collect
-
-        picardOutput = merge_picard(
-            splitMetrics
-        )
+        picardOutput = split_intervals(inputs.bam, inputs.bai, inputs.bed)
+            | splitBed
+            | splitText()
+            | map { line -> line.trim() }
+            | combine(inputs.bam)
+            | combine(inputs.bai)
+            | combine(inputs.reference)
+            | combine(inputs.picard)
+            | map { nested -> nested.flatten() }
+            | picard
+            | collect
+            | merge_picard
     }
 
     // 3. Annotate with Pileup and Picard results
