@@ -20,7 +20,7 @@ def parse_args():
     parser.add_argument("--reference", required=True, help="Path to reference FASTA")
     parser.add_argument("--coverage", type=int, required=True, help="Global coverage used for LOG_DEPTH_RATIO")
     parser.add_argument("--median_insert", type=int, default=300, help="Global median insert size used for insert ratio calculations")
-    parser.add_argument("--indels", action="store_true", help="If set, run the Indel pipeline branch, else run SNV logic")
+    parser.add_argument("--mutation_type", default="snvs", help="Mutation type, valid choices: 'snvs', 'indels'.")
     return parser.parse_args()
 
 def calculate_strand_bias_score(mutation):
@@ -139,8 +139,19 @@ def main():
 
     # Open reference FASTA
     ref_fasta = FastaFile(args.reference)
+    
+    df["5_BASE"] = df.apply(
+        lambda x: ref_fasta.fetch(
+            str(x["CHR"]), start=x["START"] - 2, end=x["START"] - 1
+        ),
+        axis=1,
+    )
+    df["3_BASE"] = df.apply(
+        lambda x: ref_fasta.fetch(str(x["CHR"]), start=x["END"], end=x["END"] + 1),
+        axis=1
+    )
 
-    if args.indels:
+    if args.mutation_type == "indels":
         # Indel-specific columns
         df[["INDEL_LENGTH", "INDEL_TYPE"]] = df.apply(
             get_indel_length_type, 
@@ -182,16 +193,6 @@ def main():
         df = df[INDEL_CLASSIFIER_COLUMNS]
 
     else:
-        # SNV-specific columns
-        df["5_BASE"] = df.apply(
-            lambda x: ref_fasta.fetch(str(x["CHR"]), start=x["START"] - 2, end=x["START"] - 1),
-            axis=1
-        )
-        df["3_BASE"] = df.apply(
-            lambda x: ref_fasta.fetch(str(x["CHR"]), start=x["END"], end=x["END"] + 1),
-            axis=1
-        )
-
         # Read Picard pre-adapter metrics
         pa_df = pd.read_csv(args.picard_preadapter, sep="\t")
 

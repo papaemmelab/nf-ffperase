@@ -272,7 +272,6 @@ workflow preprocessWorkflow {
         pileupOutput,
         picardOutput,
         inputs.reference,
-        params.mutationType
     )
 
     emit:
@@ -323,16 +322,7 @@ workflow {
 }
 
 workflow.onComplete {
-    if (workflow.success) {
-
-        // Clean intermediate files
-        log.info("\nCleaning intermediate files...")
-        rmdir("${params.outdirPreprocess}/splits")
-        rmdir("${params.outdirPreprocess}/pileup")
-        rmdir("${params.outdirPreprocess}/picard")
-
-        logSuccess("\nDone! ${coloredTitle()}\u001B[32m ran successfully. See results: ${getAbsolute(params.outdir)}")
-    } else {
-        logError("\nOops .. something went wrong")
-    }
+    workflow.success
+        ? logSuccess("\nDone! ${coloredTitle()}\u001B[32m ran successfully. See results: ${getAbsolute(params.outdir)}")
+        : logError("\nOops .. something went wrong")
 }

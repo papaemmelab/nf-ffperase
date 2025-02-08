@@ -39,9 +39,10 @@ process pileup {
     path "pileup_*.txt", emit: pileupVcfs
 
     script:
+    def snvsOption = params.mutationType == 'snvs' ? 'true' : 'false'
     """
     BASENAME_VCF=\$(basename ${splitVcf} .vcf)
-    
+
     annotate_w_pileup \\
         ${bam} \\
         ${reference} \\
@@ -49,7 +50,8 @@ process pileup {
         pileup_\${BASENAME_VCF}.txt \\
         --mapq ${params.minMapq} \\
         --baseq ${params.minBaseq} \\
-        --depth ${params.minDepth}
+        --depth ${params.minDepth} \\
+        --snvs ${snvsOption}
     """
 }
 
