@@ -1,0 +1,30 @@
+name: nf-ffperase CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test_pipeline:
+    runs-on: ubuntu-latest
+    name: Job to run the test workflow
+    steps:
+      - uses: actions/checkout@v3
+      - uses: nf-core/setup-nextflow@v1
+      - name: Install nf-test
+        run: |
+          wget -qO- https://code.askimed.com/install/nf-test | bash
+          sudo mv nf-test /usr/local/bin/
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Pull Docker image and cache
+        run: |
+          docker pull papaemmelab/toil_formalinfixer:v0.0.2
+      - name: Run unit tests for process module and main workflow
+        run: |
+          nf-test test --profile cloud --ci --coverage --verbose

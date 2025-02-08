@@ -12,3 +12,8 @@ tmp
 tests/outdir/*
 outdir
 plugins
+result*
+**/__pycache__
+
+# Models
+models/
