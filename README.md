@@ -2,9 +2,10 @@
 
 [![code formatting][black_badge]][black_base]
 [![nf-test](https://img.shields.io/badge/tested_with-nf--test-337ab7.svg)](https://github.com/askimed/nf-test)
+[![nf-ffperase CI](https://github.com/papaemmelab/nf-ffperase/actions/workflows/ci.yaml/badge.svg)](https://github.com/papaemmelab/nf-ffperase/actions/workflows/ci.yaml)
 
 > [!important]
-> **You may use `FFPErase`, the underlying content, and any output therefrom for personal for academic research and noncommercial purposes only. See [LICENSE](LICENSE) for more details.**
+> **You may use `FFPErase`, the underlying content, and any output therefrom for personal use, academic research and noncommercial purposes only. See [LICENSE](LICENSE) for more details.**
 
 Tool for pre-processing and classifying FFPE artifact mutations, using nextflow.
 
