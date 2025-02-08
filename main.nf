@@ -240,7 +240,6 @@ workflow preprocessWorkflow {
     } else {
         // Compute new metrics
         picardOutput = split_intervals(inputs.bam, inputs.bai, inputs.bed)
-            | splitBed
             | splitText()
             | map { line -> line.trim() }
             | combine(inputs.bam)
@@ -271,16 +270,13 @@ workflow classifyWorkflow {
     main:
     inputs = validateInputs()
 
-    classifiedTsv = classify_random_forest(
+    classify_random_forest(
         featuresTsv,
         inputs.model,
         params.modelName,
         params.mutationType,
         inputs.tsv
     )
-
-    emit:
-    classifiedTsv
 }
 
 workflow {

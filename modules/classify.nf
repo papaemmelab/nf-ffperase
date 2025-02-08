@@ -10,14 +10,15 @@ process classify_random_forest {
     
     output:
     path "classify/classified_df_${mutationType}.tsv", emit: classifiedTsv
+    path "classify/annotated.tsv", optional: true, emit: AnnotatedTsv
     
     script:
-    def tsvOption = tsv.name != 'NO_FILE' ? "\\    --annotated-tsv ${tsv}" : ""
+    def tsvOption = tsv.name != 'NO_FILE' ? "--annotated-tsv ${tsv}" : ""
     """
-    classify_w_random_forest.py \\
+    classify_w_random_forest.py ${tsvOption} \\
         --features ${features} \\
         --model ${model} \\
         --model-name ${modelName} \\
-        --mutation-type ${mutationType} ${tsvOption}
+        --mutation-type ${mutationType}
     """.stripIndent()
 }
