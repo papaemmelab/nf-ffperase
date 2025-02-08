@@ -8,7 +8,7 @@ nextflow_pipeline {
         // when {
         //     workflow {
         //         """
-        //         input[0] = Channel.fromPath('tests/data/input_df.tsv')
+        //         input[0] = Channel.fromPath('tests/data/features.tsv')
         //         """
         //     }
         // }

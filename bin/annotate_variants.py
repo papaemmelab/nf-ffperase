@@ -139,7 +139,7 @@ def main():
 
     # Open reference FASTA
     ref_fasta = FastaFile(args.reference)
-    
+
     df["5_BASE"] = df.apply(
         lambda x: ref_fasta.fetch(
             str(x["CHR"]), start=x["START"] - 2, end=x["START"] - 1
@@ -229,7 +229,7 @@ def main():
         df = df[SNV_CLASSIFIER_COLUMNS]
 
     # Write out annotated file
-    output_path = join(args.outdir, "input_df.tsv")
+    output_path = join(args.outdir, "features.tsv")
     df.to_csv(output_path, sep="\t", index=False)
 
     print(f"[INFO] Done! Annotated results written to {output_path}")

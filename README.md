@@ -80,18 +80,18 @@ nextflow run papaemmelab/nf-ffperase \
     --medianInsert {250} \
 ```
 
-Output is the features, located at: `{outdir}/preprocess/input_df.tsv`.
+Output is the features, located at: `{outdir}/preprocess/features.tsv`.
 
 ### 2. 🔮 Classifying Artifacts
 
-`--step classify` takes an input of a model type, corresponding model and classifies preprocessed mutations based on their likelihood of being artifactual. Output should be directly from preprocess step, located in the output directory: `{outdir}/preprocess/input_df.tsv`.
+`--step classify` takes an input of a model type, corresponding model and classifies preprocessed mutations based on their likelihood of being artifactual. Output should be directly from preprocess step, located in the output directory: `{outdir}/preprocess/features.tsv`.
 
 See this example:
 
 ```bash
 nextflow run papaemmelab/nf-ffperase \
     --step full \
-    --features {results/preprocess/input_df.tsv} \
+    --features {results/preprocess/features.tsv} \
     --outdir {results} \
     --model {trained_models/snvs.pkl} \
     --modelName {name}

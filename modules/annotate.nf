@@ -8,7 +8,7 @@ process annotate_variants {
     path reference
 
     output:
-    path "input_df.tsv", emit: featuresTsv
+    path "features.tsv", emit: featuresTsv
 
 
     script:

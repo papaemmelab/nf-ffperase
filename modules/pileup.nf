@@ -1,7 +1,5 @@
 
 process split_pileup {
-    publishDir "${params.outdirPreprocess}/splits", mode: "copy"
-
     input:
     path vcf
 
@@ -30,8 +28,6 @@ process split_pileup {
 }
 
 process pileup {
-    publishDir "${params.outdirPreprocess}/pileup", mode: "copy"
-    
     input:
     tuple path(splitVcf), path(bam), path(bai), path(reference)
 

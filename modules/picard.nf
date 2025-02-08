@@ -1,6 +1,4 @@
 process split_intervals {
-    publishDir "${params.outdirPreprocess}/picard", mode: "copy"
-
     input:
     path bam
     path bai
@@ -20,8 +18,6 @@ process split_intervals {
 }
 
 process picard {
-    publishDir "${params.outdirPreprocess}/picard", mode: "copy"
-
     input:
     tuple val(bedSplitLine), path(bam), path(bai), path(reference), path(picard)
 

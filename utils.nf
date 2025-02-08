@@ -47,13 +47,3 @@ def mkdirs(path) {
         path.mkdirs()
     }
 }
-
-def rmdir(path) {
-    path = new File(new File(path).absolutePath)
-    if (!path.exists()) { return }
-    if (path.deleteDir()) {
-        logInfo("Directory '${path}' removed.")
-    } else {
-        logWarning("Failed to remove directory '${path}'.")
-    }
-}

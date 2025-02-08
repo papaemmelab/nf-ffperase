@@ -1,5 +1,6 @@
 process classify_random_forest {
     publishDir "${params.outdir}", mode: "copy"
+    container ""
     
     input:
     path features

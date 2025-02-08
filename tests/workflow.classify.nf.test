@@ -9,7 +9,7 @@ nextflow_workflow {
             params.step = "classify"
             workflow {
                 """
-                input[0] = Channel.fromPath('${projectDir}/tests/data/input_df.tsv')
+                input[0] = Channel.fromPath('${projectDir}/tests/data/features.tsv')
                 """
             }
         }
@@ -24,6 +24,3 @@ nextflow_workflow {
     }
 
 }
-// TODO: 
-// - Classify should allow to have --input_df
-// - Finish tests

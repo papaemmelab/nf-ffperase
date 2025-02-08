@@ -3,7 +3,6 @@ include { logSuccess
     logError
     logInfo
     mkdirs
-    rmdir
     coloredTitle
     getAbsolute
 } from './utils.nf'
@@ -71,7 +70,7 @@ def showHelp() {
             --picardMetrics     Output to pre-computed Picard's CollectSequencingArtifactMetrics.
 
         Classify Options:
-            --features          Tsv with preprocessed features. [default: <outdir>/preprocess/input_df.tsv]
+            --features          Tsv with preprocessed features. [default: <outdir>/preprocess/features.tsv]
             --model             Path to trained model [required].
             --modelName         Name of the trained model [required].
             --outdir            Output location for results [required].
