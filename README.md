@@ -26,7 +26,7 @@ nextflow run papaemmelab/nf-ffperase --help
 
 ### 0. ⚡️ Full pipeline
 
-Deafult value: `--step full`. It runs both `Preprocessing` and `Classify` steps.
+Default value: `--step full`. It runs both `Preprocessing` and `Classify` steps.
 
 See this example:
 
@@ -46,7 +46,7 @@ nextflow run papaemmelab/nf-ffperase \
 
 `nf-ffperase` has 2 steps, `preprocess` and `classify`:
 
-1. ✏️ `preprocess` takes an input of a VCF, BAM, median coverage and reference fasta and annotates mutations for classification. This step uses [hileup][hileup] and GATK's [Picard][picard] to calculate necessary metrics/
+1. ✏️ `preprocess` takes an input of a VCF, BAM, median coverage and reference fasta and annotates mutations for classification. This step uses [hileup][hileup] and GATK's [Picard][picard] to calculate necessary metrics.
 
 2. 🔮 `classify` takes an input of preprocessed mutations and a model and generates a classification as real or artifact for each mutation.
 
