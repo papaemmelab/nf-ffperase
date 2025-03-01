@@ -48,7 +48,7 @@ process pileup {
         --baseq ${params.minBaseq} \\
         --depth ${params.minDepth} \\
         --snvs ${snvsOption}
-    """
+    """.stripIndent()
 }
 
 process merge_pileup {
@@ -71,5 +71,5 @@ process merge_pileup {
     for f in "\${pileup_files[@]}"; do
         tail -n +2 "\$f" >> pileup.txt
     done
-    """
+    """.stripIndent()
 }

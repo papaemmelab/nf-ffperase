@@ -9,10 +9,10 @@ process split_intervals {
 
     script:
     """
-    split_bed_by_index \
-        ${bed} \
-        ${bam} \
-        split_reads.bed \
+    split_bed_by_index \\
+        ${bed} \\
+        ${bam} \\
+        split_reads.bed \\
         -c ${params.splitReads}
     """.stripIndent()
 }
@@ -33,14 +33,14 @@ process picard {
     REGION="\${CHR}:\${START}-\${END}"
     OUTFILE="picard_\${CHR}_\${START}_\${END}"
 
-    samtools view -h -M ${bam} \${REGION} \
-        | java -jar ${picard} CollectSequencingArtifactMetrics \
-            I=/dev/stdin \
-            O=\${OUTFILE} \
-            R=${reference} \
-            MINIMUM_MAPPING_QUALITY=${params.minMapq} \
+    samtools view -h -M ${bam} \${REGION} \\
+        | java -jar ${picard} CollectSequencingArtifactMetrics \\
+            I=/dev/stdin \\
+            O=\${OUTFILE} \\
+            R=${reference} \\
+            MINIMUM_MAPPING_QUALITY=${params.minMapq} \\
             MINIMUM_QUALITY_SCORE=${params.minBaseq}
-    """
+    """.stripIndent()
 }
 
 
