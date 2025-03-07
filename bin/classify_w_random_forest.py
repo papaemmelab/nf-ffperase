@@ -39,6 +39,7 @@ def classify_with_random_forest(
     
     # Load input dataframe
     features_df = pd.read_csv(features_path, sep="\t", low_memory=False)
+    features_df["CHR"] = features_df["CHR"].astype(str)
 
     # Prepare features
     cols_to_drop = ["CHR", "START", "END"]
@@ -67,6 +68,7 @@ def classify_with_random_forest(
         annotated_tsv = pd.read_csv(
             annotated_tsv_path, sep="\t", comment="#", low_memory=False
         )
+        annotated_tsv["CHR"] = annotated_tsv["CHR"].astype(str)
         cols = [
             "CHR",
             "START",
