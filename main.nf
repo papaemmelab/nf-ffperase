@@ -28,6 +28,10 @@ include {
     classify_random_forest
 } from './modules/classify.nf'
 
+include {
+    train_random_forest
+} from './modules/train.nf'
+
 
 def showVersion() {
     version = "v0.1.0"
@@ -75,6 +79,13 @@ def showHelp() {
             --modelName         Name of the trained model [required].
             --outdir            Output location for results [required].
             --tsv               Tsv that will be used to add annotated columns to the classified output.
+
+        Train Options:
+            --features          Tsv with preprocessed features, and labels [required].
+            --labelCol          Column name of feature tsv with artifact labels [required].
+            --modelName         Name of the trained model [required].
+            --modelPath         Path to trained base model to add more estimators if desired.
+            --outdir            Output location for results [required].
 
     """.stripIndent()
     exit 0
@@ -135,6 +146,16 @@ def showInfo() {
         tsv           : ${new File(params.tsv).name != 'NO_FILE' ? params.tsv : "''"}\
     """) : ""
 
+    logMessage += ["train"].contains(params.step) ? (
+    """
+        ** To Train: **
+
+        features      : ${params.features}
+        labelCol      : ${params.labelCol}
+        modelName     : ${params.modelName}
+        modelPath     : ${params.modelPath}
+    """) : ""
+
     logMessage += """
         ----------------------------------------------------------------
     """
@@ -160,6 +181,12 @@ def validateInputs() {
         requiredParams.put("features", false)
         requiredParams.put("model", true)
         requiredParams.put("tsv", false)
+    }
+    if (["train"].contains(params.step)) {
+        requiredParams.put("features", true)
+        requiredParams.put("labelCol", true)
+        requiredParams.put("modelName", true)
+        requiredParams.put("modelPath", false)
     }
 
     def channels = [:]
@@ -189,7 +216,7 @@ def validateInputs() {
 }
 
 def validateSteps() {
-    def validSteps = ['preprocess', 'classify', 'full']
+    def validSteps = ['preprocess', 'classify', 'train', 'full']
     if (!validSteps.contains(params.step)) {
         logError """\
             Error: Invalid step '${params.step}'
@@ -279,6 +306,33 @@ workflow classifyWorkflow {
     )
 }
 
+workflow trainWorkflow {
+    take:
+    featuresTsv
+
+    main:
+    inputs = validateInputs()
+
+    def validMutationTypes = ["snvs", "indels"]
+    if (!validMutationTypes.contains(params.mutationType)) {
+        logError """\
+            Error: Invalid Mutation Type: '${params.mutationType}.'
+            Valid choices are: ${validMutationTypes.join(', ')}.
+        """.stripIndent()
+        exit 1
+    }
+
+    def modelPath = params.modelPath ?: ""
+
+    train_random_forest(
+        featuresTsv,
+        params.labelCol,
+        params.modelName,
+        params.mutationType,
+        modelPath,
+    )
+}
+
 workflow {
     if (params.help) { showHelp() }
     if (params.version) { showVersion() }
@@ -287,6 +341,9 @@ workflow {
     showInfo()
     
     def featuresTsv
+    def inputs = validateInputs()
+
+    logInfo "DEBUG: params.step = ${params.step}"
 
     if (params.step == "preprocess") {
         featuresTsv = preprocessWorkflow()
@@ -295,6 +352,11 @@ workflow {
     if (params.step == "classify") {
         featuresTsv = inputs.features
         classifyWorkflow(featuresTsv)
+    }
+
+    if (params.step == "train") {
+        featuresTsv = inputs.features
+        trainWorkflow(featuresTsv)
     }
 
     if (params.step == "full") {
