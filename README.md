@@ -98,7 +98,7 @@ nextflow run papaemmelab/nf-ffperase \
     --modelName {name}
 ```
 
-### 2. 🧠 Training/Retraining
+### 3. 🧠 Training/Retraining
 
 `--step train` takes an input of preprocessed mutations and a boolean label column (0: real, 1: artifact), a model name, mutation type, and an optional pretrained model to train a new classifier.
 
