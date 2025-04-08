@@ -44,7 +44,7 @@ nextflow run papaemmelab/nf-ffperase \
     --modelName {name}
 ```
 
-`nf-ffperase` has 2 steps, `preprocess` and `classify`:
+`nf-ffperase` has 2 steps to classify variants, `preprocess` and `classify`:
 
 1. ✏️ `preprocess` takes an input of a VCF, BAM, median coverage and reference fasta and annotates mutations for classification. This step uses [hileup][hileup] and GATK's [Picard][picard] to calculate necessary metrics.
 
@@ -98,6 +98,22 @@ nextflow run papaemmelab/nf-ffperase \
     --modelName {name}
 ```
 
+### 2. 🧠 Training/Retraining
+
+`--step train` takes an input of preprocessed mutations and a boolean label column (0: real, 1: artifact), a model name, mutation type, and an optional pretrained model to train a new classifier.
+
+See this example:
+
+```bash
+nextflow run papaemmelab/nf-ffperase \
+    --step train \
+    --features {results/preprocess/features.tsv} \
+    --labelCol {column name} \
+    --modelName {name} \
+    --outdir {results} \
+    --mutationType {snvs or indels} \
+    --modelPath {trained_models/snvs.pkl} (optional)
+```
 
 ## Contributing
 
