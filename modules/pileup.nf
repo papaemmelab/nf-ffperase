@@ -10,10 +10,16 @@ process split_pileup {
     """
     #!/usr/bin/env python
     import os
+    import gzip
     
     ANNOT_LIMIT = ${params.splitPileup}
 
-    with open('${vcf}', 'r', encoding='utf-8') as f_in:
+    def open_vcf(filename):
+        if filename.endswith('.gz'):
+            return gzip.open(filename, 'rt', encoding='utf-8')
+        else:
+            return open(filename, 'r', encoding='utf-8')
+    with open_vcf('${vcf}') as f_in:
         lines = list(f_in.readlines())
     header = [l for l in lines if l.startswith('#')]
     records = [l for l in lines if not l.startswith('#')]
