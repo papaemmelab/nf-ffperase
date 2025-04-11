@@ -69,7 +69,7 @@ def showHelp() {
             --minBaseq          Minimum BaseQ to assess reads with pileup. [0-60] [default: 20]
             --minDepth          Minimum read depth to assess reads with pileup. [default: 20]
             --minMapq           Minimum MAPQ to assess reads with pileup. [0-60] [default: 20]
-            --splitPileup       Number of variants per file for pileup jobs. [default: 50]
+            --splitPileup       Number of variants per file for pileup jobs. [default: 1000]
             --splitReads        Number of reads to split into picard jobs. [default: 7,500,000]
             --picardMetrics     Output to pre-computed Picard's CollectSequencingArtifactMetrics.
 
