@@ -86,7 +86,7 @@ nextflow run papaemmelab/nf-ffperase \
 Output is the features, located at: `{outdir}/preprocess/features.tsv`.
 
 #### ⚡️ Optional Speed Improvements
-Option `--splitPileup` corresponds to number of mutations to include in each pileup split and is set as default to 1000. `--splitReads` corresponds to number of reads to include within each picard split with a default of 7,500,000. If desired and resources are available, decreasing these will increase the number of split jobs optimizing the pileup and picard processes.
+Option `--splitPileup` corresponds to number of mutations to include in each pileup split and is set as default to 1000. `--splitReads` corresponds to number of reads to include within each picard split with a default of 7,500,000. If desired and resources are available, decreasing these will increase the number of split jobs optimizing the pileup and picard processes. Changes to these will impact how much memory is required per job so may require updates in nextflow config.
 
 ### 2. 🔮 Classifying Artifacts
 
