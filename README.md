@@ -11,10 +11,23 @@ Tool for pre-processing and classifying FFPE artifact mutations, using nextflow.
 
 ## Contents
 
-- [Run Pipeline](#-run-pipeline)
-  - [Preprocess Variants](#-preprocessing-variants)
-  - [Classify Variants](#-classifying-artifacts)
-- [Contributing](#contributing)
+- [🧽 nf-ffperase](#-nf-ffperase)
+  - [Contents](#contents)
+  - [🤖 Trained Models](#-trained-models)
+  - [🚀 Run Pipeline](#-run-pipeline)
+    - [1. ⚡️ Full pipeline](#1-️-full-pipeline)
+    - [2. ✏️ Preprocessing Variants](#2-️-preprocessing-variants)
+      - [Example](#example)
+      - [⚡️ Optional Speed Improvements](#️-optional-speed-improvements)
+    - [3. 🔮 Classifying Artifacts](#3--classifying-artifacts)
+    - [4. 🧠 Training/Retraining](#4--trainingretraining)
+  - [Contributing](#contributing)
+
+## 🤖 Trained Models
+
+Models for SNV and Indels artifacts are available at: <https://huggingface.co/papaemmelab/ffperase>
+
+if `--model` is not provided, the pipeline will download the corresponding model for the mutation type from **huggingface** 🤗.
 
 ## 🚀 Run Pipeline
 
@@ -24,7 +37,13 @@ You need [Nextflow](https://www.nextflow.io/docs/latest/install.html) installed.
 nextflow run papaemmelab/nf-ffperase --help
 ```
 
-### 0. ⚡️ Full pipeline
+Give it a try with a test run if you have docker available:
+
+```bash
+nextflow run papaemmelab/nf-ffperase -main -profile test,cloud
+```
+
+### 1. ⚡️ Full pipeline
 
 Default value: `--step full`. It runs both `Preprocessing` and `Classify` steps.
 
@@ -51,8 +70,7 @@ nextflow run papaemmelab/nf-ffperase \
 
 2. 🔮 `classify` takes an input of preprocessed mutations and a model and generates a classification as real or artifact for each mutation.
 
-
-### 1. ✏️ Preprocessing Variants
+### 2. ✏️ Preprocessing Variants
 
 `--step preprocess` runs the following processes:
 
@@ -86,9 +104,10 @@ nextflow run papaemmelab/nf-ffperase \
 Output is the features, located at: `{outdir}/preprocess/features.tsv`.
 
 #### ⚡️ Optional Speed Improvements
+
 Option `--splitPileup` corresponds to number of mutations to include in each pileup split and is set as default to 1000. `--splitReads` corresponds to number of reads to include within each picard split with a default of 7,500,000. If desired and resources are available, decreasing these will increase the number of split jobs optimizing the pileup and picard processes. Changes to these will impact how much memory is required per job so may require updates in nextflow config.
 
-### 2. 🔮 Classifying Artifacts
+### 3. 🔮 Classifying Artifacts
 
 `--step classify` takes an input of a model type, corresponding model and classifies preprocessed mutations based on their likelihood of being artifactual. Output should be directly from preprocess step, located in the output directory: `{outdir}/preprocess/features.tsv`.
 
@@ -104,7 +123,7 @@ nextflow run papaemmelab/nf-ffperase \
     --modelName {name}
 ```
 
-### 3. 🧠 Training/Retraining
+### 4. 🧠 Training/Retraining
 
 `--step train` takes an input of preprocessed mutations and a boolean label column (0: real, 1: artifact), a model name, mutation type, and an optional pretrained model to train a new classifier.
 
@@ -125,7 +144,6 @@ nextflow run papaemmelab/nf-ffperase \
 ## Contributing
 
 Contributions are welcome, and they are greatly appreciated, check our [contributing guidelines](.github/CONTRIBUTING.md)!
-
 
 <!-- References -->
 [hileup]: https://github.com/brentp/hileup

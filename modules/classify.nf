@@ -1,4 +1,31 @@
-process classify_random_forest {
+process DOWNLOAD_MODEL {
+    input:
+    val mutationType
+
+    output:
+    path "model.{mutationType}.joblib", emit: model
+
+    script:
+    """
+    #!/usr/bin/env python3
+
+    from huggingface_hub import hf_hub_download
+    import shutil
+
+    print(
+        f"Downloading papaemmelab/ffperase model for "
+        f"{mutation_type} from Hugging Face Hub..."
+    )
+    downloaded_file = hf_hub_download(
+        repo_id="papaemmelab/ffperase",
+        filename=f"model.{mutation_type}.joblib",
+    )
+    shutil.copy(downloaded_file, f"model.{mutation_type}.joblib")
+    """.stripIndent()
+}
+
+
+process CLASSIFY_RANDOM_FOREST {
     publishDir "${params.outdir}", mode: "copy"
     
     input:

@@ -8,28 +8,29 @@ include { logSuccess
 } from './utils.nf'
 
 include {
-    split_pileup
-    pileup
-    merge_pileup
+    SPLIT_PILEUP
+    PILEUP
+    MERGE_PILEUP
 } from './modules/pileup.nf'
 
 include {
-    split_intervals
-    picard
-    merge_picard
-    copy_picard
+    SPLIT_INTERVALS
+    PICARD
+    MERGE_PICARD
+    COPY_PICARD
 } from './modules/picard.nf'
 
 include {
-    annotate_variants
+    ANNOTATE_VARIANTS
 } from './modules/annotate.nf'
 
 include {
-    classify_random_forest
+    DOWNLOAD_MODEL
+    CLASSIFY_RANDOM_FOREST
 } from './modules/classify.nf'
 
 include {
-    train_random_forest
+    TRAIN_RANDOM_FOREST
 } from './modules/train.nf'
 
 
@@ -175,11 +176,10 @@ def validateInputs() {
         requiredParams.put("bed", false)
         requiredParams.put("picard", false)
         requiredParams.put("picardMetrics", false)
-        requiredParams.put("model", true)
     }
     if (["classify", "full"].contains(params.step)) {
         requiredParams.put("features", false)
-        requiredParams.put("model", true)
+        requiredParams.put("model", false)
         requiredParams.put("tsv", false)
     }
     if (["train"].contains(params.step)) {
@@ -250,23 +250,23 @@ workflow preprocessWorkflow {
 
     // 1. Pileup Mutations
     pileupOutput = inputs.vcf
-        | split_pileup
+        | SPLIT_PILEUP
         | flatten
         | combine(inputs.bam)
         | combine(inputs.bai)
         | combine(inputs.reference)
         | map { nested -> nested.flatten() }
-        | pileup
+        | PILEUP
         | collect
-        | merge_pileup
+        | MERGE_PILEUP
 
     // 2. Get Metrics from Picard
     if (inputs.picardMetrics) {
         // Read from pre-computed metrics
-        picardOutput = inputs.picardMetrics | copy_picard
+        picardOutput = inputs.picardMetrics | COPY_PICARD
     } else {
         // Compute new metrics
-        picardOutput = split_intervals(inputs.bam, inputs.bai, inputs.bed)
+        picardOutput = SPLIT_INTERVALS(inputs.bam, inputs.bai, inputs.bed)
             | splitText()
             | map { line -> line.trim() }
             | combine(inputs.bam)
@@ -274,13 +274,13 @@ workflow preprocessWorkflow {
             | combine(inputs.reference)
             | combine(inputs.picard)
             | map { nested -> nested.flatten() }
-            | picard
+            | PICARD
             | collect
-            | merge_picard
+            | MERGE_PICARD
     }
 
     // 3. Annotate with Pileup and Picard results
-    featuresTsv = annotate_variants(
+    featuresTsv = ANNOTATE_VARIANTS(
         pileupOutput,
         picardOutput,
         inputs.reference,
@@ -297,13 +297,30 @@ workflow classifyWorkflow {
     main:
     inputs = validateInputs()
 
-    classify_random_forest(
+    inputs.model = inputs.model ?: DOWNLOAD_MODEL(params.mutationType)
+
+    classification = CLASSIFY_RANDOM_FOREST(
         featuresTsv,
         inputs.model,
         params.modelName,
         params.mutationType,
         inputs.tsv
     )
+
+    classification.classifiedTsv.view { file ->
+        def variantCount = file.text.readLines().size() - 1
+        logInfo """
+            Classified ${variantCount} variants.
+
+            Outputs:
+            - ${params.outdir}/classify/${file.getName()}"
+        """.stripIndent()
+    }
+
+    classification.AnnotatedTsv.subscribe { file ->
+        def publishedFile = file()
+        logInfo"    - ${params.outdir}/classify/${file.getName()}"
+    }
 }
 
 workflow trainWorkflow {
@@ -324,7 +341,7 @@ workflow trainWorkflow {
 
     def modelPath = params.modelPath ?: ""
 
-    train_random_forest(
+    TRAIN_RANDOM_FOREST(
         featuresTsv,
         params.labelCol,
         params.modelName,
@@ -342,8 +359,6 @@ workflow {
     
     def featuresTsv
     def inputs = validateInputs()
-
-    logInfo "DEBUG: params.step = ${params.step}"
 
     if (params.step == "preprocess") {
         featuresTsv = preprocessWorkflow()

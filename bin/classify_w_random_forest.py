@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-
-import joblib
 from pathlib import Path
+import joblib
 import pandas as pd
 
 pd.options.display.float_format = "{:.2f}".format
+
 
 def classify_with_random_forest(
     features_path, model_path, model_name, mutation_type, annotated_tsv_path, outdir

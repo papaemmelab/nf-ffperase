@@ -4,9 +4,29 @@ nextflow_workflow {
     script "main.nf"
     workflow "classifyWorkflow"
 
-    test("Should run --step classify") {
+    test("Should run --step classify providing a local model") {
         when {
             params.step = "classify"
+            workflow {
+                """
+                input[0] = Channel.fromPath('${projectDir}/tests/data/features.tsv')
+                """
+            }
+        }
+        then {
+            with(workflow) {
+                assert success
+                assert exitStatus == 0
+                assert trace.tasks().size() == 1
+                assert trace.succeeded().size() == 1
+            }
+        }
+    }
+
+    test("Should run --step classify downloading model from hugging-face hub") {
+        when {
+            params.step = "classify"
+            params.model = ""
             workflow {
                 """
                 input[0] = Channel.fromPath('${projectDir}/tests/data/features.tsv')
