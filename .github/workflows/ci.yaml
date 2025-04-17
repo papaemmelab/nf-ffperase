@@ -24,7 +24,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Pull Docker image and cache
         run: |
-          docker pull papaemmelab/toil_formalinfixer:v0.0.2
+          docker pull papaemmelab/nf-ffperase:v1.0.0
       - name: Run unit tests for process module and main workflow
         run: |
           nf-test test --profile cloud --ci --coverage --verbose
