@@ -32,6 +32,7 @@ See this example:
 
 ```bash
 nextflow run papaemmelab/nf-ffperase \
+    -r main \
     --step full \
     --vcf {snvs.vcf} \
     --bam {tumor.bam} \
@@ -71,6 +72,7 @@ nextflow run papaemmelab/nf-ffperase \
 
 ```bash
 nextflow run papaemmelab/nf-ffperase \
+    -r main \
     --step preprocess \
     --vcf {snvs.vcf} \
     --bam {tumor.bam} \
@@ -83,6 +85,9 @@ nextflow run papaemmelab/nf-ffperase \
 
 Output is the features, located at: `{outdir}/preprocess/features.tsv`.
 
+#### ⚡️ Optional Speed Improvements
+Option `--splitPileup` corresponds to number of mutations to include in each pileup split and is set as default to 1000. `--splitReads` corresponds to number of reads to include within each picard split with a default of 7,500,000. If desired and resources are available, decreasing these will increase the number of split jobs optimizing the pileup and picard processes. Changes to these will impact how much memory is required per job so may require updates in nextflow config.
+
 ### 2. 🔮 Classifying Artifacts
 
 `--step classify` takes an input of a model type, corresponding model and classifies preprocessed mutations based on their likelihood of being artifactual. Output should be directly from preprocess step, located in the output directory: `{outdir}/preprocess/features.tsv`.
@@ -91,6 +96,7 @@ See this example:
 
 ```bash
 nextflow run papaemmelab/nf-ffperase \
+    -r main \
     --step full \
     --features {results/preprocess/features.tsv} \
     --outdir {results} \
@@ -106,6 +112,7 @@ See this example:
 
 ```bash
 nextflow run papaemmelab/nf-ffperase \
+    -r main \
     --step train \
     --features {results/preprocess/features.tsv} \
     --labelCol {column name} \

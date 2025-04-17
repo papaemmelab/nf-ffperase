@@ -30,22 +30,6 @@ RUN apt-get update && apt-get install -y openjdk-8-jdk && \
     wget -qO /downloads/picard.jar "https://github.com/broadinstitute/picard/releases/download/2.25.6/picard.jar"
 ENV PICARD=/downloads/picard.jar
 
-# Install HTSlib using libdeflate
-RUN \
-    cd /downloads && \
-    git clone --depth 1 https://github.com/ebiggers/libdeflate.git --branch v1.2 && \
-    cd libdeflate && \
-    make -j$(nproc) CFLAGS='-fPIC -O3' libdeflate.a && \
-    cp libdeflate.a /usr/local/lib && \
-    cp libdeflate.h /usr/include && \
-    cd /downloads && rm -rf libdeflate && \
-    git clone https://github.com/samtools/htslib --branch 1.9 && \
-    cd htslib && \
-    autoheader && autoconf && \
-    ./configure --enable-plugins --with-libdeflate && \
-    make -j$(nproc) install && \
-    cd /downloads && rm -rf htslib
-
 # Install BEDOPS tools for vcf2bed
 RUN \
     cd /downloads && \
@@ -59,6 +43,40 @@ RUN wget -qO /usr/bin/split_bed_by_index \
     "https://github.com/papaemmelab/split_bed_by_index/releases/download/0.2.0b/split_bed_by_index" && \
     chmod +x /usr/bin/split_bed_by_index
 
+
+# Install HTSlib using libdeflate
+RUN \
+    cd /downloads && \
+        git clone --depth 1 https://github.com/ebiggers/libdeflate.git --branch v1.2 && \
+    cd libdeflate && \
+        make -j 2 CFLAGS='-fPIC -O3' libdeflate.a && \
+        cp libdeflate.a /usr/local/lib && \
+        cp libdeflate.h /usr/include && \
+    cd /downloads && \
+        rm -rf libdeflate && \
+        git clone https://github.com/samtools/htslib --branch 1.9 && \
+    cd htslib && \
+        autoheader && \
+        autoconf && \
+        ./configure --enable-plugins --with-libdeflate && \
+        make -j4 install && \
+        echo "/usr/local/lib" > /etc/ld.so.conf.d/htslib.conf && ldconfig && \
+    cd /downloads && \
+        rm -rf htslib
+
+# Install samtools
+RUN \
+    cd /downloads && \
+        git clone https://github.com/samtools/samtools.git --branch 1.9 && \
+    cd samtools && \
+        autoheader && \
+        autoconf -Wno-syntax && \
+        ./configure --with-htslib=../htslib --with-libdeflate && \
+        make -j4 && make install && \
+    cd /downloads && \
+        rm -rf samtools
+    
+
 # Install required Python packages
 COPY requirements.txt /tmp/
 RUN pip install --upgrade pip && \
@@ -71,5 +89,6 @@ RUN mkdir -p $BIN_DIR
 COPY ./bin/annotate_w_pileup $BIN_DIR/
 RUN chmod +x $BIN_DIR/annotate_w_pileup
 ENV PATH=$BIN_DIR:$PATH
+RUN ln -s $PICARD $BIN_DIR/picard.jar
 
 ENTRYPOINT ["annotate_w_pileup"]
