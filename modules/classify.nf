@@ -3,7 +3,7 @@ process DOWNLOAD_MODEL {
     val mutationType
 
     output:
-    path "model.{mutationType}.joblib", emit: model
+    path "model.${mutationType}.joblib", emit: model
 
     script:
     """
