@@ -37,8 +37,8 @@ nextflow_workflow {
             with(workflow) {
                 assert success
                 assert exitStatus == 0
-                assert trace.tasks().size() == 1
-                assert trace.succeeded().size() == 1
+                assert trace.tasks().size() == 2
+                assert trace.succeeded().size() == 2
             }
         }
     }
