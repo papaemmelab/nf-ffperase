@@ -14,13 +14,13 @@ process DOWNLOAD_MODEL {
 
     print(
         f"Downloading papaemmelab/ffperase model for "
-        f"{mutation_type} from Hugging Face Hub..."
+        f"${mutationType} from Hugging Face Hub..."
     )
     downloaded_file = hf_hub_download(
         repo_id="papaemmelab/ffperase",
-        filename=f"model.{mutation_type}.joblib",
+        filename=f"model.${mutationType}.joblib",
     )
-    shutil.copy(downloaded_file, f"model.{mutation_type}.joblib")
+    shutil.copy(downloaded_file, f"model.${mutationType}.joblib")
     """.stripIndent()
 }
 
