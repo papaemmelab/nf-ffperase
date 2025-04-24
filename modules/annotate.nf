@@ -25,7 +25,6 @@ process ANNOTATE_VARIANTS {
 
     rm -rf \\
         ${params.outdirPreprocess}/splits \\
-        ${params.outdirPreprocess}/pileup \\
-        ${params.outdirPreprocess}/picard
+        ${params.outdirPreprocess}/pileup
     """.stripIndent()
 }

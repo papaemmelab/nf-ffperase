@@ -317,9 +317,9 @@ workflow classifyWorkflow {
         """.stripIndent()
     }
 
-    classification.AnnotatedTsv.subscribe { file ->
-        def publishedFile = file()
-        logInfo"    - ${params.outdir}/classify/${file.getName()}"
+    classification.annotatedTsv.subscribe { file ->
+        def publishedFile = file
+        logInfo "    - ${params.outdir}/classify/${file.getName()}"
     }
 }
 
