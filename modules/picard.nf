@@ -18,6 +18,8 @@ process SPLIT_INTERVALS {
 }
 
 process PICARD {
+    publishDir "${params.outdirPreprocess}/picard/tmpPicard", mode: "copy"
+
     input:
     tuple val(bedSplitLine), path(bam), path(bai), path(reference), path(picard)
 
@@ -56,7 +58,7 @@ process MERGE_PICARD {
 
     script:
     """
-    collect_picard.py --dir \$PWD
+    collect_picard.py --dir ${params.outdirPreprocess}/picard
     """.stripIndent()
 }
 
