@@ -1,4 +1,4 @@
-process train_random_forest {
+process TRAIN_RANDOM_FOREST {
     publishDir "${params.outdir}", mode: "copy"
     
     input:

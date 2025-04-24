@@ -1,4 +1,4 @@
-process annotate_variants {
+process ANNOTATE_VARIANTS {
     publishDir "${params.outdirPreprocess}", mode: "copy"
 
     input:

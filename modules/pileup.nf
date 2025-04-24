@@ -1,5 +1,5 @@
 
-process split_pileup {
+process SPLIT_PILEUP {
     input:
     path vcf
 
@@ -33,7 +33,7 @@ process split_pileup {
     """.stripIndent()
 }
 
-process pileup {
+process PILEUP {
     input:
     tuple path(splitVcf), path(bam), path(bai), path(reference)
 
@@ -57,7 +57,7 @@ process pileup {
     """.stripIndent()
 }
 
-process merge_pileup {
+process MERGE_PILEUP {
     publishDir "${params.outdirPreprocess}/pileup", mode: "copy"
 
     input:

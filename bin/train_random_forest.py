@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
-import pickle
 from pathlib import Path
-
+import joblib
 import pandas as pd
-# from sklearn.model_selection import train_test_split
 from imblearn.ensemble import BalancedRandomForestClassifier
+# from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
@@ -80,7 +79,7 @@ def train_random_forest(
         features_path (str): Path to tsv with preprocessed features.
         label_col (str): Name of column with artifact labels.
         model_name (str): Name of the model for labeling outputs.
-        model_path (str): Path to the trained model (pickle file).
+        model_path (str): Path to the trained model (joblib file).
         outdir (str): Directory to save the output files.
 
     Returns:
@@ -105,7 +104,7 @@ def train_random_forest(
     brfc = None
     if pretrained_model:
         # load pretrained model and train with double the estimators
-        brfc = pickle.load(open(pretrained_model, 'rb'))
+        brfc = joblib.load(open(pretrained_model, 'rb'))
         n_estimators = brfc.named_steps['classifier'].n_estimators
         brfc.named_steps['classifier'].set_params(warm_start=True, n_estimators=n_estimators*2)
         brfc.fit(features[numerical_columns+categorical_columns], targets)
@@ -113,16 +112,16 @@ def train_random_forest(
         brfc = get_brfc(categorical_columns, numerical_columns)
         brfc.fit(features[numerical_columns+categorical_columns], targets)
     
-    # print(
-    #     "Train accuracy: %0.3f" % brfc.score(
-    #         features[numerical_columns+categorical_columns],
-    #         targets
-    #     )
-    # )
-    # print("n_estimators: %i" % brfc.named_steps["classifier"].n_estimators)
+    print(
+        "Train accuracy: %0.3f" % brfc.score(
+            features[numerical_columns+categorical_columns],
+            targets
+        )
+    )
+    print("n_estimators: %i" % brfc.named_steps["classifier"].n_estimators)
 
-    outpath = Path(train_dir) / f"model_{model_name}.pkl"
-    pickle.dump(brfc, open(outpath, "wb"))
+    outpath = Path(train_dir) / f"model_{model_name}.joblib"
+    joblib.dump(brfc, open(outpath, "wb"), compress=("gzip", 3))
 
 
 if __name__ == "__main__":

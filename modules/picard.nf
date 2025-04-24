@@ -1,4 +1,4 @@
-process split_intervals {
+process SPLIT_INTERVALS {
     input:
     path bam
     path bai
@@ -17,7 +17,7 @@ process split_intervals {
     """.stripIndent()
 }
 
-process picard {
+process PICARD {
     input:
     tuple val(bedSplitLine), path(bam), path(bai), path(reference), path(picard)
 
@@ -44,7 +44,7 @@ process picard {
 }
 
 
-process merge_picard {
+process MERGE_PICARD {
     publishDir "${params.outdirPreprocess}/picard", mode: "copy"
 
     input:
@@ -61,7 +61,7 @@ process merge_picard {
 }
 
 
-process copy_picard {
+process COPY_PICARD {
     publishDir "${params.outdirPreprocess}/picard", mode: "copy"
 
     input:

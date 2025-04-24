@@ -5,13 +5,6 @@ nextflow_pipeline {
     autoSort false
 
     test("Should full pipeline: Preprocess + Classify") {
-        // when {
-        //     workflow {
-        //         """
-        //         input[0] = Channel.fromPath('tests/data/features.tsv')
-        //         """
-        //     }
-        // }
         then {
             with(workflow) {
                 assert success
