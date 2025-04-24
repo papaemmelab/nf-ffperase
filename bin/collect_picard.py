@@ -160,7 +160,7 @@ def get_picard_metrics(picard_dir):
 
     # If tmp picard files were used, clean tmp dir.
     if aggregate:
-        shutil.rmtree(join(artifacts, "tmpPicard"), ignore_errors=True)
+        shutil.rmtree(artifacts, ignore_errors=True)
 
 
 def main():
