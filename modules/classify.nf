@@ -37,7 +37,7 @@ process CLASSIFY_RANDOM_FOREST {
     
     output:
     path "classify/classified_df_${mutationType}.tsv", emit: classifiedTsv
-    path "classify/annotated.tsv", optional: true, emit: AnnotatedTsv
+    path "classify/annotated.tsv", optional: true, emit: annotatedTsv
     
     script:
     def tsvOption = tsv.name != 'NO_FILE' ? "--annotated-tsv ${tsv}" : ""

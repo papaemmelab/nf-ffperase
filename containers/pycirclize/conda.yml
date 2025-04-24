@@ -1,0 +1,7 @@
+channels:
+- conda-forge
+- bioconda
+dependencies:
+- pip
+- pip:
+  - pyCirclize==1.9.1

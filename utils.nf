@@ -47,3 +47,37 @@ def mkdirs(path) {
         path.mkdirs()
     }
 }
+
+def logDirTree(String dir) {
+    def dirFile = new File(dir)
+    if (!dirFile.exists()) {
+        logWarning("Directory does not exist: ${dir}")
+        return
+    }
+    
+    def tree = new StringBuilder()
+    tree.append("\nOutput directory structure:\n")
+    tree.append(dir + "\n")
+    
+    createDirTree(dirFile, "", tree)
+    logInfo(tree.toString())
+}
+
+def createDirTree(File dir, String indent, StringBuilder tree) {
+    File[] files = dir.listFiles()
+    if (files == null) return
+    
+    for (int i = 0; i < files.length; i++) {
+        File file = files[i]
+        boolean isLast = (i == files.length - 1)
+        
+        tree.append(indent)
+        tree.append(isLast ? "└── " : "├── ")
+        tree.append(file.getName() + "\n")
+        
+        if (file.isDirectory()) {
+            String newIndent = indent + (isLast ? "    " : "│   ")
+            createDirTree(file, newIndent, tree)
+        }
+    }
+}
