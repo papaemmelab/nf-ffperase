@@ -41,7 +41,8 @@ process PICARD {
             O=\${OUTFILE} \\
             R=${reference} \\
             MINIMUM_MAPPING_QUALITY=${params.minMapq} \\
-            MINIMUM_QUALITY_SCORE=${params.minBaseq}
+            MINIMUM_QUALITY_SCORE=${params.minBaseq} \\
+            VALIDATION_STRINGENCY=LENIENT
     """.stripIndent()
 }
 
