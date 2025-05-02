@@ -71,9 +71,9 @@ def showHelp() {
             --mutationType      Mutation type, valid choices: "snvs", "indels". [Default: "snvs"]
             --bed               Bedfile path for the regions covered by the bam.
                                 [default: assets/gr37.no_mt_unmapped.bed.gz]
-            --minBaseq          Minimum BaseQ to assess reads with pileup. [0-60] [default: 20]
-            --minDepth          Minimum read depth to assess reads with pileup. [default: 20]
-            --minMapq           Minimum MAPQ to assess reads with pileup. [0-60] [default: 20]
+            --minBaseq          Minimum BaseQ to assess reads with pileup. [0-60] [default: 0]
+            --minDepth          Minimum read depth to assess reads with pileup. [default: 0]
+            --minMapq           Minimum MAPQ to assess reads with pileup. [0-60] [default: 0]
             --splitPileup       Number of variants per file for pileup jobs. [default: 1000]
             --splitReads        Number of reads to split into picard jobs. [default: 7,500,000]
             --picardMetrics     Output to pre-computed Picard's CollectSequencingArtifactMetrics.

@@ -61,14 +61,15 @@ nextflow run papaemmelab/nf-ffperase \
     --coverage {100} \
     --medianInsert {250} \
     --model {trained_models/snvs.pkl} \
-    --modelName {name}
+    --modelName {name} \
+    --mutationType {snvs or indels}
 ```
 
 `nf-ffperase` has 2 steps to classify variants, `preprocess` and `classify`:
 
 1. ✏️ `preprocess` takes an input of a VCF, BAM, median coverage and reference fasta and annotates mutations for classification. This step uses [hileup][hileup] and GATK's [Picard][picard] to calculate necessary metrics.
 
-2. 🔮 `classify` takes an input of preprocessed mutations and a model and generates a classification as real or artifact for each mutation.
+2. 🔮 `classify` takes an input of preprocessed mutations and a model and generates a boolean classification as artifact or real for each mutation. [True: Artifact, False: Real]
 
 ### 2. ✏️ Preprocessing Variants
 
