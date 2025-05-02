@@ -12,7 +12,7 @@ Merge multiple Picard artifact metrics (pre-adapter and bait-bias) by:
 Example usage:
     python collect_picard.py --dir /path/to/picard_metrics
 """
-from os.path import join, isdir
+from os.path import join, isdir, exists
 from glob import glob
 
 import math
@@ -59,16 +59,20 @@ def get_picard_metrics(picard_dir):
         artifacts = picard_dir
 
     # 1) Merge Pre-adapter artifact
-    pre_adapter_files = glob(join(artifacts, "*pre_adapter_detail_metrics*"))
-    if not pre_adapter_files:
-        raise FileNotFoundError(
-            f"No *pre_adapter_detail_metrics files found in {artifacts}"
-        )
-    
     if not aggregate:
         # Do not compute metrics if these are provided
-        outfile = pd.read_csv(pre_adapter_files[0], sep="\t", skiprows=6)
+        pre_adapter_file = join(artifacts, "pre_adapter_metrics.tsv")
+        if not exists(pre_adapter_file):
+            raise FileNotFoundError(
+                f"No pre_adapter_metrics.tsv found in {artifacts}"
+            )
+        outfile = pd.read_csv(pre_adapter_file, sep="\t")
     else:
+        pre_adapter_files = glob(join(artifacts, "*pre_adapter_detail_metrics*"))
+        if not pre_adapter_files:
+            raise FileNotFoundError(
+                f"No *pre_adapter_detail_metrics files found in {artifacts}"
+            )
         # Use the first file as a baseline
         df0 = pd.read_csv(pre_adapter_files[0], sep="\t", skiprows=6)
         base_counts = df0[PICARD_PRE_ADAPTER_COLS].copy()
@@ -108,16 +112,20 @@ def get_picard_metrics(picard_dir):
     )
 
     # 2) Merge BAIT-BIAS ARTIFACT MERGING
-    bait_bias_files = glob(join(artifacts, "*bait_bias_detail_metrics*"))
-    if not bait_bias_files:
-        raise FileNotFoundError(
-            f"No *bait_bias_detail_metrics files found in {artifacts}"
-        )
-    
     if not aggregate:
         # Do not compute metrics if these are provided
-        outfile = pd.read_csv(bait_bias_files[0], sep="\t", skiprows=6)
+        bait_bias_file = join(artifacts, "bait_bias_metrics.tsv")
+        if not exists(bait_bias_file):
+            raise FileNotFoundError(
+                f"No bait_bias_metrics.tsv found in {artifacts}"
+            )
+        outfile = pd.read_csv(bait_bias_file, sep="\t")
     else:
+        bait_bias_files = glob(join(artifacts, "*bait_bias_detail_metrics*"))
+        if not bait_bias_files:
+            raise FileNotFoundError(
+                f"No *bait_bias_detail_metrics files found in {artifacts}"
+            )
         # Read the first file as a baseline
         df0 = pd.read_csv(bait_bias_files[0], sep="\t", skiprows=6)
         base_counts = df0[PICARD_BAIT_BIAS_COLS].copy()
