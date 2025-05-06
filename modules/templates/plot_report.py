@@ -321,5 +321,6 @@ def plot_circos(df, mutation_type, outfile="circos.png"):
 
 
 df = pd.read_csv(TSV, sep="\t")[COLUMNS]
+df['CHR'] = df['CHR'].astype(str)
 plot_bars(df, MUTATION_TYPE)
 plot_circos(df, MUTATION_TYPE)
