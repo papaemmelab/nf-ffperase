@@ -15,10 +15,11 @@ nextflow_workflow {
         }
         then {
             with(workflow) {
+                //  2: CLASSIFY_RANDOM_FOREST + PLOT_REPORT
                 assert success
                 assert exitStatus == 0
-                assert trace.tasks().size() == 1
-                assert trace.succeeded().size() == 1
+                assert trace.tasks().size() == 2  
+                assert trace.succeeded().size() == 2 
             }
         }
     }
@@ -35,10 +36,11 @@ nextflow_workflow {
         }
         then {
             with(workflow) {
+                //  3: DOWNLOAD_MODEL + CLASSIFY_RANDOM_FOREST + PLOT_REPORT
                 assert success
                 assert exitStatus == 0
-                assert trace.tasks().size() == 2
-                assert trace.succeeded().size() == 2
+                assert trace.tasks().size() == 3
+                assert trace.succeeded().size() == 3
             }
         }
     }

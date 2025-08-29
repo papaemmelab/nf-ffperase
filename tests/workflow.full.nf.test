@@ -7,10 +7,11 @@ nextflow_pipeline {
     test("Should full pipeline: Preprocess + Classify") {
         then {
             with(workflow) {
+                // 7: SPLIT_PILEUP + PILEUP + MERGE_PILEUP + COPY_PICARD + ANNOTATE_VARIANTS + CLASSIFY_RANDOM_FOREST + PLOT_REPORT
                 assert success
                 assert exitStatus == 0
-                assert trace.tasks().size() == 6
-                assert trace.succeeded().size() == 6
+                assert trace.tasks().size() == 7
+                assert trace.succeeded().size() == 7
             }
         }
     }

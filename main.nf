@@ -5,6 +5,7 @@ include { logSuccess
     mkdirs
     coloredTitle
     getAbsolute
+    logDirTree
 } from './utils.nf'
 
 include {
@@ -33,6 +34,9 @@ include {
     TRAIN_RANDOM_FOREST
 } from './modules/train.nf'
 
+include {
+    PLOT_REPORT
+} from './modules/report.nf'
 
 def showVersion() {
     version = "v0.1.0"
@@ -307,20 +311,10 @@ workflow classifyWorkflow {
         inputs.tsv
     )
 
-    classification.classifiedTsv.view { file ->
-        def variantCount = file.text.readLines().size() - 1
-        logInfo """
-            Classified ${variantCount} variants.
-
-            Outputs:
-            - ${params.outdir}/classify/${file.getName()}"
-        """.stripIndent()
-    }
-
-    classification.annotatedTsv.subscribe { file ->
-        def publishedFile = file
-        logInfo "    - ${params.outdir}/classify/${file.getName()}"
-    }
+    plots = PLOT_REPORT(
+        classification.classifiedTsv,
+        params.mutationType
+    )
 }
 
 workflow trainWorkflow {
