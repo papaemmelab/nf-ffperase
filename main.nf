@@ -313,7 +313,9 @@ workflow classifyWorkflow {
 
     plots = PLOT_REPORT(
         classification.classifiedTsv,
-        params.mutationType
+        params.mutationType,
+        file("${workflow.projectDir}/assets/hg19.chrom.bed"),
+        file("${workflow.projectDir}/assets/cytoBand.txt")
     )
 }
 

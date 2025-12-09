@@ -11,7 +11,7 @@ from pycirclize import Circos
 # Inputs
 TSV = "${classifiedTsv}"
 MUTATION_TYPE = "${mutationType}"
-CHROM_BED = "${chrom_bed}"
+CHROM_BED = "${chromBed}"
 CYTOBAND = "${cytoBand}"
 
 # Constants
