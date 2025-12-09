@@ -11,8 +11,8 @@ from pycirclize import Circos
 # Inputs
 TSV = "${classifiedTsv}"
 MUTATION_TYPE = "${mutationType}"
-CHROM_BED = "${workflow.projectDir}/assets/hg19.chrom.bed"
-CYTOBAND = "${workflow.projectDir}/assets/cytoBand.txt"
+CHROM_BED = "${chrom_bed}"
+CYTOBAND = "${cytoBand}"
 
 # Constants
 COLUMNS = [
