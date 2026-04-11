@@ -268,7 +268,8 @@ def plot_circos_indels(df, outfile="circos.png"):
                     continue
                 for _, row in df_chr.iterrows():
                     ymin, ymax, offset = 40, 90, 1
-                    y =  (ymax - ymin) * row['VAF']
+                    vaf = min(row['VAF'], 1.) # FIX: alt count can be > depth for some indels
+                    y = (ymax - ymin) * vaf
                     y1, y2 = max(ymin, (y-offset) + ymin), min(ymax, (y+offset) + ymin)   
                     x1, x2 = row["START"], row["END"]
                     color = colors[label][row[label]]
